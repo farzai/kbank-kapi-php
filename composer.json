@@ -1,9 +1,14 @@
 {
     "name": "farzai/kapi",
-    "description": "This is my package kapi",
+    "description": "This SDK simplifies the process of integrating with KBank's APIs",
     "keywords": [
         "farzai",
-        "kapi"
+        "kapi",
+        "kbank",
+        "kbank api",
+        "kbank api sdk",
+        "open api",
+        "sdk"
     ],
     "homepage": "https://github.com/farzai/kapi",
     "license": "MIT",
