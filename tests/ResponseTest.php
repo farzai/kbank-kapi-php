@@ -3,6 +3,7 @@
 use Farzai\KApi\Http\Response;
 use GuzzleHttp\Psr7\Response as PsrResponse;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
+use Psr\Http\Message\StreamInterface;
 
 it('should return the psr response', function () {
     $response = new Response(
@@ -52,4 +53,23 @@ it('should return null if the json key is not exists', function () {
     );
 
     expect($response->json('bar'))->toBeNull();
+});
+
+it('should call json decode once', function () {
+    $content = \Mockery::mock(StreamInterface::class);
+    $content->shouldReceive('getContents')
+        ->once()
+        ->andReturn(json_encode([
+            'foo' => 'bar',
+        ]));
+
+    $psrResponse = \Mockery::mock(PsrResponse::class);
+    $psrResponse->shouldReceive('getBody')
+        ->once()
+        ->andReturn($content);
+
+    $response = new Response($psrResponse);
+
+    expect($response->json())->toBeArray();
+    expect($response->json())->toBeArray();
 });
