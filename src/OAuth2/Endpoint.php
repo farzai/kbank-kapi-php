@@ -3,28 +3,15 @@
 namespace Farzai\KApi\OAuth2;
 
 use Farzai\KApi\AbstractEndpoint;
-use Farzai\KApi\Client;
-use GuzzleHttp\Psr7\Request;
+use Farzai\KApi\Http\ResponseInterface;
 
 class Endpoint extends AbstractEndpoint
 {
-    protected Client $client;
-
-    public function __construct(Client $client)
+    /**
+     * Generate an access token.
+     */
+    public function generateAccessToken(): ResponseInterface
     {
-        $this->client = $client;
-    }
-
-    public function generateAccessToken()
-    {
-        // $req = new Request(
-        //     method: "POST",
-        //     uri: "/v2/oauth/token",
-        //     headers: [
-        //         "Content-Type" => "application/x-www-form-urlencoded",
-        //     ],
-        // );
-
         $req = $this->createRequest(
             method: 'POST',
             uri: '/v2/oauth/token',
@@ -32,5 +19,7 @@ class Endpoint extends AbstractEndpoint
                 'Content-Type' => 'application/x-www-form-urlencoded',
             ],
         );
+
+        return $this->sendRequest($req);
     }
 }

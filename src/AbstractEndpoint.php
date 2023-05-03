@@ -4,14 +4,20 @@ declare(strict_types=1);
 
 namespace Farzai\KApi;
 
+use Farzai\KApi\Http\Response;
+use Farzai\KApi\Http\ResponseInterface;
 use GuzzleHttp\Psr7\Request;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 
 abstract class AbstractEndpoint
 {
-    protected Client $client;
+    protected ClientInterface $client;
 
-    public function __construct(Client $client)
+    /**
+     * Create a new client instance.
+     */
+    public function __construct(ClientInterface $client)
     {
         $this->client = $client;
     }
@@ -27,5 +33,13 @@ abstract class AbstractEndpoint
             headers: $headers,
             body: $body
         );
+    }
+
+    /**
+     * Send the request.
+     */
+    protected function sendRequest(RequestInterface $request): ResponseInterface
+    {
+        return new Response($this->client->sendRequest($request));
     }
 }

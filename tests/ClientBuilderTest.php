@@ -20,3 +20,20 @@ it('should consumer encode with base64 valid', function () {
 
     expect($client->getConsumer())->toBe('dGhpc2lzaWQ6dGhpc2lzc2VjcmV0');
 });
+
+it('should be sandbox host by default', function () {
+    $client = ClientBuilder::create()
+        ->setConsumer('key', 'secret')
+        ->build();
+
+    expect($client->isSandbox())->toBeTrue();
+});
+
+it('should be sandbox host', function () {
+    $client = ClientBuilder::create()
+        ->setConsumer('', '')
+        ->build();
+
+    expect($client->isSandbox())->toBeTrue();
+    expect($client->getBaseUri())->toBe('https://openapi-sandbox.kasikornbank.com');
+});

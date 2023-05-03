@@ -22,7 +22,7 @@ class ClientBuilder
     /**
      * Sandbox
      */
-    private bool $sandbox = false;
+    private bool $sandbox = true;
 
     /**
      * SSL certificate

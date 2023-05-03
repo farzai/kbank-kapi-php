@@ -23,9 +23,11 @@ class Client implements ClientInterface
     }
 
     /**
-     * {@inheritDoc}
+     * OAuth2 endpoint.
+     * 
+     * @return \Farzai\KApi\OAuth2\Endpoint
      */
-    public function oauth(): OAuth2\Endpoint
+    public function oauth2()
     {
         return new OAuth2\Endpoint($this);
     }
@@ -33,7 +35,7 @@ class Client implements ClientInterface
     /**
      * Check if the client is in sandbox mode.
      */
-    public function isSandBox(): bool
+    public function isSandbox(): bool
     {
         return $this->sandbox;
     }
@@ -67,18 +69,24 @@ class Client implements ClientInterface
             return;
         }
 
-        $uri->withScheme('https');
-
-        $uri->withHost(
-            $this->isSandBox()
-                ? 'openapi-sandbox.kasikornbank.com'
-                : 'openapi.kasikornbank.com'
-        );
+        $uri->withHost($this->getBaseUri());
 
         if (! $request->hasHeader('Authorization')) {
             $request->withHeader('Authorization', 'Basic '.$this->consumer);
         }
 
         $request->withHeader('User-Agent', self::CLIENT_NAME.'/'.self::VERSION);
+    }
+
+    /**
+     * Get the base uri.
+     */
+    public function getBaseUri(): string
+    {
+        $host = $this->isSandBox()
+            ? 'openapi-sandbox.kasikornbank.com'
+            : 'openapi.kasikornbank.com';
+
+        return 'https://'.$host;
     }
 }

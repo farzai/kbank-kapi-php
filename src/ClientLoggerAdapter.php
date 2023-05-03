@@ -19,6 +19,9 @@ class ClientLoggerAdapter implements ClientInterface
      */
     protected $logger;
 
+    /**
+     * Create a new client instance.
+     */
     public function __construct(ClientInterface $client, LoggerInterface $logger)
     {
         $this->client = $client;

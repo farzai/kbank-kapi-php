@@ -39,6 +39,8 @@ class Response implements ResponseInterface
 
     /**
      * Return the response headers.
+     *
+     * @return array<string, array<string>>
      */
     public function headers(): array
     {
