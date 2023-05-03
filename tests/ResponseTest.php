@@ -73,3 +73,31 @@ it('should call json decode once', function () {
     expect($response->json())->toBeArray();
     expect($response->json())->toBeArray();
 });
+
+it('should status code valid', function () {
+    $response = new Response(
+        new PsrResponse(
+            201,
+            [],
+            json_encode([
+                'foo' => 'bar',
+            ])
+        )
+    );
+
+    expect($response->statusCode())->toBe(201);
+});
+
+it('should successfull', function () {
+    $response = new Response(
+        new PsrResponse(
+            200,
+            [],
+            json_encode([
+                'foo' => 'bar',
+            ])
+        )
+    );
+
+    expect($response->isSuccessfull())->toBeTrue();
+});

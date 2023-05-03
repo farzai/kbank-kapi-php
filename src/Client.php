@@ -7,7 +7,6 @@ namespace Farzai\KApi;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use Psr\Log\LoggerInterface;
 
 class Client implements ClientInterface
 {
@@ -17,16 +16,10 @@ class Client implements ClientInterface
 
     public function __construct(
         protected ClientInterface $client,
-        protected LoggerInterface $logger,
         protected string $consumer,
-        protected array $sslCert = [],
-        protected array $sslKey = [],
-        protected bool $sslVerification = false,
         protected bool $sandbox = false
     ) {
-        if ($this->sslVerification) {
-            $this->ensureCertificationIsValid();
-        }
+        //
     }
 
     /**
@@ -38,48 +31,54 @@ class Client implements ClientInterface
     }
 
     /**
-     * {@inheritDoc}
+     * Check if the client is in sandbox mode.
      */
-    public function getLogger(): LoggerInterface
+    public function isSandBox(): bool
     {
-        return $this->logger;
+        return $this->sandbox;
     }
 
     /**
-     * {@inheritDoc}
+     * Get the consumer credentials.
+     * (base64 encoded)
+     */
+    public function getConsumer(): string
+    {
+        return $this->consumer;
+    }
+
+    /**
+     * Send the request.
      */
     public function sendRequest(RequestInterface $request): ResponseInterface
     {
-        $request->withHeader('User-Agent', self::CLIENT_NAME.'/'.self::VERSION);
-        $request->withHeader('Authorization', 'Basic '.$this->consumer);
+        $this->prepareRequest($request);
 
         return $this->client->sendRequest($request);
     }
 
-    protected function ensureCertificationIsValid(): void
+    /**
+     * Prepare the request.
+     */
+    protected function prepareRequest(RequestInterface $request): void
     {
-        if (count($this->sslCert) !== 2) {
-            throw new \InvalidArgumentException('SSL certificate must contain 2 elements');
+        $uri = $request->getUri();
+        if (! empty($uri->getHost())) {
+            return;
         }
 
-        if (! is_string($this->sslCert[0])) {
-            throw new \InvalidArgumentException('SSL certificate must contain a string as first element');
+        $uri->withScheme('https');
+
+        $uri->withHost(
+            $this->isSandBox()
+                ? 'openapi-sandbox.kasikornbank.com'
+                : 'openapi.kasikornbank.com'
+        );
+
+        if (! $request->hasHeader('Authorization')) {
+            $request->withHeader('Authorization', 'Basic '.$this->consumer);
         }
 
-        if (! is_string($this->sslCert[1])) {
-            throw new \InvalidArgumentException('SSL certificate must contain a string as second element');
-        }
-
-        if (count($this->sslKey) !== 2) {
-            throw new \InvalidArgumentException('SSL key must contain 2 elements');
-        }
-
-        if (! is_string($this->sslKey[0])) {
-            throw new \InvalidArgumentException('SSL key must contain a string as first element');
-        }
-
-        if (! is_string($this->sslKey[1])) {
-            throw new \InvalidArgumentException('SSL key must contain a string as second element');
-        }
+        $request->withHeader('User-Agent', self::CLIENT_NAME.'/'.self::VERSION);
     }
 }

@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Farzai\KApi;
 
+use Farzai\KApi\Logger\NullLogger;
+use GuzzleHttp\Client as GuzzleClient;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
@@ -11,6 +13,7 @@ class ClientBuilder
 {
     /**
      * Consumer credentials
+     * (base64 encoded)
      *
      * @var string
      */
@@ -27,7 +30,7 @@ class ClientBuilder
      * @var array [$cert,] is the name of a file containing a PEM formatted certificate,
      *              $password if the certificate requires a password
      */
-    private array $sslCert;
+    private array $sslCert = [];
 
     /**
      * SSL key
@@ -35,7 +38,7 @@ class ClientBuilder
      * @var array [$key,] is the name of a file containing a private SSL key,
      *              $password if the private key requires a password
      */
-    private array $sslKey;
+    private array $sslKey = [];
 
     /**
      * SSL verification
@@ -91,7 +94,9 @@ class ClientBuilder
      */
     public function setConsumer(string $id, string $secret): self
     {
-        $this->consumer = base64_encode($id.':'.$secret);
+        $this->consumer = base64_encode(
+            implode(':', array_map('trim', [$id, $secret]))
+        );
 
         return $this;
     }
@@ -123,9 +128,10 @@ class ClientBuilder
      */
     public function withTwoWaySsl(string $cert, string $key, string $password = null): self
     {
-        $this->sslCert = [$cert, $password];
-        $this->sslKey = [$key, $password];
         $this->sslVerification = true;
+
+        $this->setSslCert($cert, $password);
+        $this->setSslKey($key, $password);
 
         return $this;
     }
@@ -189,14 +195,65 @@ class ClientBuilder
      */
     public function build(): Client
     {
+        if (! $this->client) {
+            $this->ensureCertificationIsValid();
+        }
+
+        if (! $this->logger) {
+            $this->logger = new NullLogger();
+        }
+
         return new Client(
-            $this->client,
-            $this->logger,
-            $this->consumer,
-            $this->sslCert,
-            $this->sslKey,
-            $this->sslVerification
+            client: new ClientLoggerAdapter(
+                client: $this->client ?? $this->getDefaultClient(),
+                logger: $this->logger,
+            ),
+            consumer: $this->consumer,
+            sandbox: $this->sandbox,
         );
+    }
+
+    protected function ensureCertificationIsValid(): void
+    {
+        if (empty($this->sslCert) && empty($this->sslKey)) {
+            return;
+        }
+
+        if (count($this->sslCert) !== 2) {
+            throw new \InvalidArgumentException('SSL certificate must contain 2 elements');
+        }
+
+        if (! is_string($this->sslCert[0])) {
+            throw new \InvalidArgumentException('SSL certificate must contain a string as first element');
+        }
+
+        if (! is_string($this->sslCert[1])) {
+            throw new \InvalidArgumentException('SSL certificate must contain a string as second element');
+        }
+
+        if (count($this->sslKey) !== 2) {
+            throw new \InvalidArgumentException('SSL key must contain 2 elements');
+        }
+
+        if (! is_string($this->sslKey[0])) {
+            throw new \InvalidArgumentException('SSL key must contain a string as first element');
+        }
+
+        if (! is_string($this->sslKey[1])) {
+            throw new \InvalidArgumentException('SSL key must contain a string as second element');
+        }
+    }
+
+    /**
+     * Get the default client
+     */
+    private function getDefaultClient(): ClientInterface
+    {
+        return new GuzzleClient([
+            'verify' => $this->sslVerification,
+            'cert' => $this->sslCert,
+            'ssl_key' => $this->sslKey,
+        ]);
     }
 
     private function __construct()
