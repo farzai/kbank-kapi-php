@@ -3,8 +3,6 @@
 use Farzai\KApi\Client;
 use Farzai\KApi\ClientBuilder;
 use Farzai\KApi\OAuth2\Endpoint as OAuth2Endpoint;
-use Psr\Http\Client\ClientInterface;
-use Psr\Http\Message\RequestInterface as PsrRequestInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
 it('should endpoint valid', function () {
@@ -19,24 +17,24 @@ it('should endpoint valid', function () {
 
 it('should call generate access token success', function () {
     $psrResponse = \Mockery::mock(PsrResponseInterface::class)
-                ->shouldReceive('getStatusCode')->once()
-                ->andReturn(200)
-                ->shouldReceive('getBody')->once()
-                ->andReturn(
-                    \Mockery::mock(\Psr\Http\Message\StreamInterface::class)
-                        ->shouldReceive('getContents')->once()
-                        ->andReturn(json_encode([
-                            'developer.email' => 'dev-sandbox-openapi@kasikornbank.com',
-                            'token_type' => 'Bearer',
-                            'client_id' => 'a2FzaWtvcm5iYW5rdXNlcg==',
-                            'access_token' => 'a2FzaWtvcm5iYW5rdG9rZW4=',
-                            'scope' => '',
-                            'expires_in' => '1799',
-                            'status' => 'approved',
-                        ]))
-                        ->getMock()
-                )
-                ->getMock();
+        ->shouldReceive('getStatusCode')->once()
+        ->andReturn(200)
+        ->shouldReceive('getBody')->once()
+        ->andReturn(
+            \Mockery::mock(\Psr\Http\Message\StreamInterface::class)
+                ->shouldReceive('getContents')->once()
+                ->andReturn(json_encode([
+                    'developer.email' => 'dev-sandbox-openapi@kasikornbank.com',
+                    'token_type' => 'Bearer',
+                    'client_id' => 'a2FzaWtvcm5iYW5rdXNlcg==',
+                    'access_token' => 'a2FzaWtvcm5iYW5rdG9rZW4=',
+                    'scope' => '',
+                    'expires_in' => '1799',
+                    'status' => 'approved',
+                ]))
+                ->getMock()
+        )
+        ->getMock();
 
     $client = \Mockery::mock(Client::class)
         ->makePartial()

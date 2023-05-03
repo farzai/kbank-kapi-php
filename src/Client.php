@@ -24,7 +24,7 @@ class Client implements ClientInterface
 
     /**
      * OAuth2 endpoint.
-     * 
+     *
      * @return \Farzai\KApi\OAuth2\Endpoint
      */
     public function oauth2()
