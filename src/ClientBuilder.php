@@ -61,8 +61,7 @@ class ClientBuilder
     /**
      * Build the client
      *
-     * @param <string, mixed> $config
-     * @return Client
+     * @return \Farzai\KApi\ClientBuilder
      */
     public static function fromConfig(array $config): self
     {
@@ -213,6 +212,11 @@ class ClientBuilder
         );
     }
 
+    /**
+     * Ensure the certification is valid
+     *
+     * @throws \InvalidArgumentException
+     */
     protected function ensureCertificationIsValid(): void
     {
         if (empty($this->sslCert) && empty($this->sslKey)) {
