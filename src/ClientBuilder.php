@@ -206,14 +206,17 @@ class ClientBuilder
             $this->logger = new NullLogger();
         }
 
-        return new Client(
+        $client = new Client(
             client: new ClientLoggerAdapter(
                 client: $this->client ?? $this->getDefaultClient(),
                 logger: $this->logger,
             ),
-            consumer: $this->consumer,
-            sandbox: $this->sandbox,
         );
+
+        $client->consumer = $this->consumer;
+        $client->sandbox = $this->sandbox;
+
+        return $client;
     }
 
     /**

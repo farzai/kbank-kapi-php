@@ -1,6 +1,6 @@
 <?php
 
-namespace Farzai\KApi\Http;
+namespace Farzai\KApi\Contracts;
 
 use Psr\Http\Message\RequestInterface as PsrRequestInterface;
 

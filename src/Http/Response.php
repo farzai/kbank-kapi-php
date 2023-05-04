@@ -2,6 +2,7 @@
 
 namespace Farzai\KApi\Http;
 
+use Farzai\KApi\Contracts\ResponseInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
 class Response implements ResponseInterface

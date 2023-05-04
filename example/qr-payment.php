@@ -3,6 +3,7 @@
 require_once __DIR__.'/../vendor/autoload.php';
 
 use Farzai\KApi\ClientBuilder;
+use Farzai\KApi\QrPayment\Requests\RequestThaiQRCode;
 
 $config = [
     'consumer_key' => env('KBANK_CONSUMER_KEY'),
@@ -14,4 +15,6 @@ $client = ClientBuilder::create()
     ->asSandbox()
     ->build();
 
-$response = $client->qrPayment->generateThaiQrCode();
+$request = new RequestThaiQRCode();
+
+$response = $client->qrPayment->sendRequest($request);

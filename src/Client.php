@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Farzai\KApi;
 
-use Psr\Http\Client\ClientInterface;
+use Farzai\KApi\Contracts\ClientInterface;
+use Psr\Http\Client\ClientInterface as PsrClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 /**
  * @property-read \Farzai\KApi\OAuth2\Endpoint $oauth2
+ * @property-read \Farzai\KApi\QrPayment\Endpoint $qrPayment
  */
 class Client implements ClientInterface
 {
@@ -17,10 +19,21 @@ class Client implements ClientInterface
 
     const VERSION = '1.0.0';
 
+    /**
+     * Consumer credentials encoded in base64.
+     */
+    public string $consumer = '';
+
+    /**
+     * Sandbox mode.
+     */
+    public bool $sandbox = false;
+
+    /**
+     * Create a new client instance.
+     */
     public function __construct(
-        protected ClientInterface $client,
-        protected string $consumer,
-        protected bool $sandbox = false
+        protected PsrClientInterface $client
     ) {
         //
     }

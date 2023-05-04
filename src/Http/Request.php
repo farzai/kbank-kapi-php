@@ -2,6 +2,7 @@
 
 namespace Farzai\KApi\Http;
 
+use Farzai\KApi\Contracts\RequestInterface;
 use GuzzleHttp\Psr7\Request as GuzzlePsrRequest;
 use Psr\Http\Message\RequestInterface as PsrRequestInterface;
 
@@ -20,10 +21,20 @@ abstract class Request implements RequestInterface
 
     protected array $payload = [];
 
+    protected function post(string $uri)
+    {
+        return $this->to('POST', $uri);
+    }
+
+    protected function get(string $uri)
+    {
+        return $this->to('GET', $uri);
+    }
+
     /**
      * Request as JSON.
      */
-    public function asJson()
+    protected function asJson()
     {
         if ($this->method === 'GET') {
             $this->method = 'POST';
@@ -37,7 +48,7 @@ abstract class Request implements RequestInterface
     /**
      * Request as form.
      */
-    public function asForm()
+    protected function asForm()
     {
         $this->method = 'POST';
         $this->headers['Content-Type'] = 'application/x-www-form-urlencoded';
@@ -90,8 +101,9 @@ abstract class Request implements RequestInterface
         return $this;
     }
 
-    public function to(string $uri): self
+    public function to($method, string $uri): self
     {
+        $this->method = strtoupper($method);
         $this->uri = '/'.ltrim($uri, '/');
 
         return $this;

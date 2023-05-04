@@ -12,8 +12,8 @@ class RequestAccessToken extends Request
     public function __construct()
     {
         $this
-            ->asForm()
-            ->to('/v2/oauth/token');
+            ->post('/v2/oauth/token')
+            ->asForm();
     }
 
     /**

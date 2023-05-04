@@ -4,12 +4,11 @@ declare(strict_types=1);
 
 namespace Farzai\KApi;
 
+use Farzai\KApi\Contracts\ClientInterface;
 use Farzai\KApi\Contracts\EndpointInterface as EndpointContract;
-use Farzai\KApi\Http\RequestInterface;
+use Farzai\KApi\Contracts\RequestInterface;
+use Farzai\KApi\Contracts\ResponseInterface;
 use Farzai\KApi\Http\Response;
-use Farzai\KApi\Http\ResponseInterface;
-use GuzzleHttp\Psr7\Request;
-use Psr\Http\Client\ClientInterface;
 
 abstract class AbstractEndpoint implements EndpointContract
 {
