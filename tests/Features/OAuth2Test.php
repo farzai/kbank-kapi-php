@@ -3,6 +3,7 @@
 use Farzai\KApi\Client;
 use Farzai\KApi\ClientBuilder;
 use Farzai\KApi\OAuth2\Endpoint as OAuth2Endpoint;
+use Farzai\KApi\OAuth2\Requests\RequestAccessToken;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
 it('should endpoint valid', function () {
@@ -10,7 +11,7 @@ it('should endpoint valid', function () {
         ->setConsumer('key', 'secret')
         ->build();
 
-    $endpoint = $client->oauth2();
+    $endpoint = $client->oauth2;
 
     expect($endpoint)->toBeInstanceOf(OAuth2Endpoint::class);
 });
@@ -43,7 +44,7 @@ it('should call generate access token success', function () {
         ->andReturn($psrResponse)
         ->getMock();
 
-    $response = $client->oauth2()->generateAccessToken();
+    $response = $client->oauth2->requestAccessToken(new RequestAccessToken);
 
     expect($response->statusCode())->toBe(200);
     expect($response->json('access_token'))->toBe('a2FzaWtvcm5iYW5rdG9rZW4=');

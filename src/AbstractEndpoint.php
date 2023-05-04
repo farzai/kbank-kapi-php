@@ -4,13 +4,14 @@ declare(strict_types=1);
 
 namespace Farzai\KApi;
 
+use Farzai\KApi\Contracts\EndpointInterface as EndpointContract;
+use Farzai\KApi\Http\RequestInterface;
 use Farzai\KApi\Http\Response;
 use Farzai\KApi\Http\ResponseInterface;
 use GuzzleHttp\Psr7\Request;
 use Psr\Http\Client\ClientInterface;
-use Psr\Http\Message\RequestInterface;
 
-abstract class AbstractEndpoint
+abstract class AbstractEndpoint implements EndpointContract
 {
     protected ClientInterface $client;
 
@@ -23,23 +24,10 @@ abstract class AbstractEndpoint
     }
 
     /**
-     * Create a new request
-     */
-    protected function createRequest(string $method, string $uri, array $headers = [], string $body = null): RequestInterface
-    {
-        return new Request(
-            method: $method,
-            uri: $uri,
-            headers: $headers,
-            body: $body
-        );
-    }
-
-    /**
      * Send the request.
      */
-    protected function sendRequest(RequestInterface $request): ResponseInterface
+    public function sendRequest(RequestInterface $request): ResponseInterface
     {
-        return new Response($this->client->sendRequest($request));
+        return new Response($this->client->sendRequest($request->toPsrRequest()));
     }
 }

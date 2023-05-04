@@ -1,6 +1,6 @@
 <?php
 
-namespace Farzai\KApi\SslCheck;
+namespace Farzai\KApi\QrPayment;
 
 use Farzai\KApi\AbstractEndpoint;
 

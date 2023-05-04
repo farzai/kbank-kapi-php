@@ -67,6 +67,10 @@ class ClientBuilder
     {
         $builder = self::create();
 
+        if (isset($config['consumer_key']) && isset($config['consumer_secret'])) {
+            $builder->setConsumer($config['consumer_key'], $config['consumer_secret']);
+        }
+
         if (isset($config['sandbox']) && $config['sandbox'] === true) {
             $builder->asSandbox();
         }

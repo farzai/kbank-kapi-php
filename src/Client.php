@@ -8,6 +8,9 @@ use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
+/**
+ * @property-read \Farzai\KApi\OAuth2\Endpoint $oauth2
+ */
 class Client implements ClientInterface
 {
     const CLIENT_NAME = 'kapi-php';
@@ -27,7 +30,7 @@ class Client implements ClientInterface
      *
      * @return \Farzai\KApi\OAuth2\Endpoint
      */
-    public function oauth2()
+    public function createOAuth2Endpoint()
     {
         return new OAuth2\Endpoint($this);
     }
@@ -60,6 +63,18 @@ class Client implements ClientInterface
     }
 
     /**
+     * Get the base uri.
+     */
+    public function getBaseUri(): string
+    {
+        $host = $this->isSandBox()
+            ? 'openapi-sandbox.kasikornbank.com'
+            : 'openapi.kasikornbank.com';
+
+        return 'https://'.$host;
+    }
+
+    /**
      * Prepare the request.
      */
     protected function prepareRequest(RequestInterface $request): void
@@ -78,15 +93,18 @@ class Client implements ClientInterface
         $request->withHeader('User-Agent', self::CLIENT_NAME.'/'.self::VERSION);
     }
 
-    /**
-     * Get the base uri.
-     */
-    public function getBaseUri(): string
+    public function __get($name)
     {
-        $host = $this->isSandBox()
-            ? 'openapi-sandbox.kasikornbank.com'
-            : 'openapi.kasikornbank.com';
+        $methodName = 'create'.ucfirst($name).'Endpoint';
 
-        return 'https://'.$host;
+        if (method_exists($this, $methodName)) {
+            return $this->{$methodName}();
+        }
+
+        if (property_exists($this, $name)) {
+            return $this->{$name};
+        }
+
+        throw new \Exception('Undefined property: '.static::class.'::$'.$name);
     }
 }
