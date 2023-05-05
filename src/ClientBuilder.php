@@ -9,7 +9,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
 
-class ClientBuilder
+final class ClientBuilder
 {
     /**
      * Consumer credentials
@@ -44,16 +44,16 @@ class ClientBuilder
      * SSL verification
      * Enable or disable the SSL verfiication (default is true)
      */
-    private bool $sslVerification = true;
+    private bool $sslVerification = false;
 
     private ?ClientInterface $client;
 
     private ?LoggerInterface $logger;
 
     /**
-     * Start building the client
+     * Create a new builder instance.
      */
-    public static function create(): self
+    public static function make(): static
     {
         return new self();
     }
@@ -65,7 +65,7 @@ class ClientBuilder
      */
     public static function fromConfig(array $config): self
     {
-        $builder = self::create();
+        $builder = new static();
 
         if (isset($config['consumer_key']) && isset($config['consumer_secret'])) {
             $builder->setConsumer($config['consumer_key'], $config['consumer_secret']);
@@ -260,11 +260,17 @@ class ClientBuilder
      */
     private function getDefaultClient(): ClientInterface
     {
-        return new GuzzleClient([
-            'verify' => $this->sslVerification,
-            'cert' => $this->sslCert,
-            'ssl_key' => $this->sslKey,
-        ]);
+        $options = [];
+
+        if ($this->sslVerification) {
+            $options = array_merge($options, [
+                'cert' => $this->sslCert,
+                'ssl_key' => $this->sslKey,
+                'verify' => true,
+            ]);
+        }
+
+        return new GuzzleClient($options);
     }
 
     private function __construct()

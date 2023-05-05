@@ -13,7 +13,10 @@ class RequestAccessToken extends Request
     {
         $this
             ->post('/v2/oauth/token')
-            ->asForm();
+            ->asForm()
+            ->withPayload([
+                'grant_type' => 'client_credentials',
+            ]);
     }
 
     /**

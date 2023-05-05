@@ -5,7 +5,7 @@ use Farzai\KApi\ClientBuilder;
 use Psr\Http\Client\ClientInterface;
 
 it('can build a client', function () {
-    $client = ClientBuilder::create()
+    $client = ClientBuilder::make()
         ->setConsumer('thisisid', 'thisissecret')
         ->build();
 
@@ -14,7 +14,7 @@ it('can build a client', function () {
 });
 
 it('should consumer encode with base64 valid', function () {
-    $client = ClientBuilder::create()
+    $client = ClientBuilder::make()
         ->setConsumer('thisisid', 'thisissecret')
         ->build();
 
@@ -22,7 +22,7 @@ it('should consumer encode with base64 valid', function () {
 });
 
 it('should be sandbox host by default', function () {
-    $client = ClientBuilder::create()
+    $client = ClientBuilder::make()
         ->setConsumer('key', 'secret')
         ->build();
 
@@ -30,10 +30,10 @@ it('should be sandbox host by default', function () {
 });
 
 it('should be sandbox host', function () {
-    $client = ClientBuilder::create()
+    $client = ClientBuilder::make()
         ->setConsumer('', '')
         ->build();
 
     expect($client->isSandbox())->toBeTrue();
-    expect($client->getBaseUri())->toBe('https://openapi-sandbox.kasikornbank.com');
+    expect($client->getUri())->toBe('https://openapi-sandbox.kasikornbank.com');
 });

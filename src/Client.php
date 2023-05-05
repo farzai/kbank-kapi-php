@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Farzai\KApi;
 
 use Farzai\KApi\Contracts\ClientInterface;
+use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Client\ClientInterface as PsrClientInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -39,16 +40,6 @@ class Client implements ClientInterface
     }
 
     /**
-     * OAuth2 endpoint.
-     *
-     * @return \Farzai\KApi\OAuth2\Endpoint
-     */
-    public function createOAuth2Endpoint()
-    {
-        return new OAuth2\Endpoint($this);
-    }
-
-    /**
      * Check if the client is in sandbox mode.
      */
     public function isSandbox(): bool
@@ -70,15 +61,15 @@ class Client implements ClientInterface
      */
     public function sendRequest(RequestInterface $request): ResponseInterface
     {
-        $this->prepareRequest($request);
-
-        return $this->client->sendRequest($request);
+        return $this->client->sendRequest(
+            $this->prepareRequest($request)
+        );
     }
 
     /**
      * Get the base uri.
      */
-    public function getBaseUri(): string
+    public function getUri(): string
     {
         $host = $this->isSandBox()
             ? 'openapi-sandbox.kasikornbank.com'
@@ -90,20 +81,21 @@ class Client implements ClientInterface
     /**
      * Prepare the request.
      */
-    protected function prepareRequest(RequestInterface $request): void
+    protected function prepareRequest(RequestInterface $request): RequestInterface
     {
         $uri = $request->getUri();
-        if (! empty($uri->getHost())) {
-            return;
-        }
 
-        $uri->withHost($this->getBaseUri());
+        if (empty($uri->getHost())) {
+            $request = $request->withUri(new Uri($this->getUri().$uri->getPath()));
+        }
 
         if (! $request->hasHeader('Authorization')) {
-            $request->withHeader('Authorization', 'Basic '.$this->consumer);
+            $request = $request->withHeader('Authorization', 'Basic '.$this->consumer);
         }
 
-        $request->withHeader('User-Agent', self::CLIENT_NAME.'/'.self::VERSION);
+        $request = $request->withHeader('User-Agent', self::CLIENT_NAME.'/'.self::VERSION);
+
+        return $request;
     }
 
     public function __get($name)
@@ -119,5 +111,25 @@ class Client implements ClientInterface
         }
 
         throw new \Exception('Undefined property: '.static::class.'::$'.$name);
+    }
+
+    /**
+     * OAuth2 endpoint.
+     *
+     * @return \Farzai\KApi\OAuth2\Endpoint
+     */
+    protected function createOAuth2Endpoint()
+    {
+        return new OAuth2\Endpoint($this);
+    }
+
+    /**
+     * QrPayment endpoint.
+     *
+     * @return \Farzai\KApi\QrPayment\Endpoint
+     */
+    protected function createQrPaymentEndpoint()
+    {
+        return new QrPayment\Endpoint($this);
     }
 }

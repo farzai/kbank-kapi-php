@@ -15,9 +15,7 @@ abstract class Request implements RequestInterface
     /**
      * @var array<string, string>
      */
-    protected $headers = [
-        'Accept' => 'application/json',
-    ];
+    protected $headers = [];
 
     protected array $payload = [];
 
@@ -67,16 +65,23 @@ abstract class Request implements RequestInterface
     /**
      * Create a new request instance.
      */
-    public function getBody(): string
+    public function getBody(): ?string
     {
-        return json_encode($this->payload);
+        if ($this->method === 'GET') {
+            return null;
+        }
+
+        if (isset($this->headers['Content-Type']) && $this->headers['Content-Type'] === 'application/x-www-form-urlencoded') {
+            return http_build_query($this->payload);
+        }
+
+        if (isset($this->headers['Content-Type']) && $this->headers['Content-Type'] === 'application/json') {
+            return json_encode($this->payload);
+        }
+
+        return null;
     }
 
-    /**
-     * Get the request headers.
-     *
-     * @return array<string, string>
-     */
     public function getHeaders(): array
     {
         return $this->headers;
