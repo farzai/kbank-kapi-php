@@ -21,11 +21,17 @@ abstract class Request implements RequestInterface
 
     protected array $payload = [];
 
+    /**
+     * Set the request method to POST.
+     */
     protected function post(string $uri)
     {
         return $this->to('POST', $uri);
     }
 
+    /**
+     * Set the request method to GET.
+     */
     protected function get(string $uri)
     {
         return $this->to('GET', $uri);
@@ -40,9 +46,7 @@ abstract class Request implements RequestInterface
             $this->method = 'POST';
         }
 
-        $this->headers['Content-Type'] = 'application/json';
-
-        return $this;
+        return $this->withHeader('Content-Type', 'application/json');
     }
 
     /**
@@ -51,9 +55,8 @@ abstract class Request implements RequestInterface
     protected function asForm()
     {
         $this->method = 'POST';
-        $this->headers['Content-Type'] = 'application/x-www-form-urlencoded';
 
-        return $this;
+        return $this->withHeader('Content-Type', 'application/x-www-form-urlencoded');
     }
 
     /**
@@ -61,9 +64,7 @@ abstract class Request implements RequestInterface
      */
     protected function expectsJson()
     {
-        $this->headers['Accept'] = 'application/json';
-
-        return $this;
+        return $this->withHeader('Accept', 'application/json');
     }
 
     /**
@@ -87,31 +88,36 @@ abstract class Request implements RequestInterface
      */
     public function getBody(): ?string
     {
-        if ($this->method === 'GET') {
+        if (in_array($this->method, ['GET', 'HEAD'])) {
             return null;
         }
 
-        if (isset($this->headers['Content-Type']) && $this->headers['Content-Type'] === 'application/x-www-form-urlencoded') {
-            return http_build_query($this->payload);
-        }
-
-        if (isset($this->headers['Content-Type']) && $this->headers['Content-Type'] === 'application/json') {
-            return json_encode($this->payload);
-        }
-
-        return null;
+        return match ($this->headers['Content-Type'] ?? null) {
+            'application/x-www-form-urlencoded' => http_build_query($this->payload),
+            'application/json' => json_encode($this->payload),
+            default => json_encode($this->payload),
+        };
     }
 
+    /**
+     * Get the request headers.
+     */
     public function getHeaders(): array
     {
         return $this->headers;
     }
 
+    /**
+     * Get the request method.
+     */
     public function getUri(): string
     {
         return $this->uri;
     }
 
+    /**
+     * Set the request headers.
+     */
     public function withHeader(string $key, string $value)
     {
         $this->headers[$key] = $value;
@@ -129,6 +135,9 @@ abstract class Request implements RequestInterface
         return $this;
     }
 
+    /**
+     * Set the request method and uri.
+     */
     public function to($method, string $uri)
     {
         $this->method = strtoupper($method);

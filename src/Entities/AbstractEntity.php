@@ -2,6 +2,7 @@
 
 namespace Farzai\KApi\Entities;
 
+use Farzai\KApi\Support\Str;
 use JsonSerializable;
 
 abstract class AbstractEntity implements JsonSerializable
@@ -15,7 +16,7 @@ abstract class AbstractEntity implements JsonSerializable
 
     public function __get(string $name)
     {
-        if (method_exists($this, $method = 'get'.ucfirst($name).'Attribute')) {
+        if (method_exists($this, $method = 'get'.ucfirst(Str::camel($name)).'Attribute')) {
             return $this->{$method}($this->attributes[$name] ?? null);
         }
 

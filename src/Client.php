@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace Farzai\KApi;
 
+use DateTime;
 use Farzai\KApi\Contracts\ClientInterface;
 use Farzai\KApi\Contracts\OAuth2AccessTokenRepositoryInterface;
 use Farzai\KApi\Entities\AccessToken;
 use Farzai\KApi\Http\Request;
 use Farzai\KApi\OAuth2\Requests\RequestAccessToken;
+use Farzai\KApi\Support\Str;
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Client\ClientInterface as PsrClientInterface;
 use Psr\Http\Message\RequestInterface as PsrRequestInterface;
@@ -33,6 +35,8 @@ class Client implements ClientInterface
      * Sandbox mode.
      */
     public bool $sandbox = false;
+
+    protected $timezone = 'Asia/Bangkok';
 
     /**
      * Create a new client instance.
@@ -148,13 +152,15 @@ class Client implements ClientInterface
             throw new \Exception('Unable to grant a new access token.');
         }
 
-        return new AccessToken($response->json());
+        return new AccessToken(array_merge($response->json(), [
+            'issued_at' => new DateTime('now', new \DateTimeZone($this->timezone)),
+        ]));
     }
 
     public function __get($name)
     {
         // Forwards the property to the endpoint.
-        $methodName = 'create'.ucfirst($name).'Endpoint';
+        $methodName = 'create'.ucfirst(Str::camel($name)).'Endpoint';
         if (method_exists($this, $methodName)) {
             return $this->{$methodName}();
         }

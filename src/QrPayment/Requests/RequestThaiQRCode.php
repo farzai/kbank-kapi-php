@@ -16,24 +16,19 @@ class RequestThaiQRCode extends Request
             ->asJson()
             ->expectsJson()
             ->withBearerToken()
-            ->withPayload([
-                'qrType' => 3, // 3 = Thai QR Code, 4 = Credit Card
-                'txnCurrencyCode' => 'THB',
-                'reference1' => '',
-                'reference2' => '',
-                'reference3' => '',
-                'reference4' => '',
-            ]);
+            ->asThaiQrCode()
+            ->setCurrency('THB');
     }
 
     /**
      * Set partner information.
      *
-     * @param  string  $partnerTransactionID
      * @param  string  $partnerID
+     * @param  string  $partnerTransactionID
+     * @param  string  $partnerSecret
      * @param  \DateTimeInterface|string  $requestDateTime This will be formatted to: 2018-04-05T12:30:00+07:00
      */
-    public function setPartner($partnerTransactionID, $partnerID, $partnerSecret, $requestDateTime)
+    public function setPartner($partnerID, $partnerSecret, $partnerTransactionID, $requestDateTime)
     {
         // Format to: 2018-04-05T12:30:00+07:00
         if ($requestDateTime instanceof \DateTimeInterface) {
@@ -41,24 +36,51 @@ class RequestThaiQRCode extends Request
         }
 
         return $this->withPayload([
-            'partnerTxnUid' => $partnerTransactionID,
-            'partnerId' => $partnerID,
-            'partnerSecret' => $partnerSecret,
-            'requestDt' => $requestDateTime,
+            'partnerTxnUid' => (string) $partnerTransactionID,
+            'partnerId' => (string) $partnerID,
+            'partnerSecret' => (string) $partnerSecret,
+            'requestDt' => (string) $requestDateTime,
         ]);
     }
 
+    public function asThaiQrCode()
+    {
+        return $this->setQrType(3);
+    }
+
+    /**
+     * Set QR type.
+     *
+     * @param  int  $qrType 3 = Thai QR Code, 4 = Credit Card
+     */
+    public function setQrType($qrType)
+    {
+        return $this->withPayload([
+            'qrType' => (string) $qrType,
+        ]);
+    }
+
+    /**
+     * Set merchant information.
+     *
+     * @param  string  $id
+     */
     public function setMerchant($id)
     {
         return $this->withPayload([
-            'merchantId' => $id,
+            'merchantId' => (string) $id,
         ]);
     }
 
+    /**
+     * Set terminal information.
+     *
+     * @param  string  $id
+     */
     public function setTerminal($id)
     {
         return $this->withPayload([
-            'terminalId' => $id,
+            'terminalId' => (string) $id,
         ]);
     }
 
@@ -116,7 +138,7 @@ class RequestThaiQRCode extends Request
     public function setReferences(...$references)
     {
         if (count($references) > 4) {
-            throw new \InvalidArgumentException('Maximum reference is 4.');
+            throw new \InvalidArgumentException('Maximum of 4 references are allowed.');
         }
 
         if (count($references) === 0) {
@@ -125,9 +147,9 @@ class RequestThaiQRCode extends Request
 
         return $this->withPayload(array_merge([
             'reference1' => '',
-            'reference2' => '',
-            'reference3' => '',
-            'reference4' => '',
+            'reference2' => null,
+            'reference3' => null,
+            'reference4' => null,
         ], array_combine(array_map(fn ($i) => "reference{$i}", range(1, count($references))), $references)));
     }
 }
