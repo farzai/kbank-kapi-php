@@ -16,6 +16,21 @@ Welcome to the KBank API SDK for PHP! This SDK simplifies the process of integra
 - [ ] [KGP Merchant Payment Platform](https://apiportal.kasikornbank.com/product/public/All/KGP%20Merchant%20Payment%20Platform/Introduction/Getting%20Started)
 - [ ] [Corporate Fund Transfer](https://apiportal.kasikornbank.com/product/public/All/Corporate%20%20Fund%20Transfer/Introduction/Getting%20Started)
 
+
+
+## Please note
+This project is still under development.
+#### Tasks
+- [x] OAuth2 Authentication
+- [x] Setup environment and test suite
+- [ ] Documentation
+- [ ] Implement products
+- [ ] Webhook callback capture
+- [ ] Code coverage must >= 80%
+- [ ] Add support two-way SSL authentication
+- [ ] Release v1.0.0
+
+
 ## Installation
 
 You can install the package via composer:

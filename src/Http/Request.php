@@ -63,6 +63,14 @@ abstract class Request implements RequestInterface
     }
 
     /**
+     * Request with bearer token.
+     */
+    public function withBearerToken(string $token = ":access_token:")
+    {
+        return $this->withToken($token);
+    }
+
+    /**
      * Create a new request instance.
      */
     public function getBody(): ?string
@@ -92,21 +100,24 @@ abstract class Request implements RequestInterface
         return $this->uri;
     }
 
-    public function withHeader(string $key, string $value): self
+    public function withHeader(string $key, string $value)
     {
         $this->headers[$key] = $value;
 
         return $this;
     }
 
-    public function withPayload(array $payload): self
+    /**
+     * Set the payload.
+     */
+    public function withPayload(array $payload)
     {
-        $this->payload = $payload;
+        $this->payload = array_merge($this->payload, $payload);
 
         return $this;
     }
 
-    public function to($method, string $uri): self
+    public function to($method, string $uri)
     {
         $this->method = strtoupper($method);
         $this->uri = '/'.ltrim($uri, '/');

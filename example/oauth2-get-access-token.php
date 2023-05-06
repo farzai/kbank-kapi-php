@@ -13,13 +13,16 @@ $config = [
     'consumer_secret' => 'a2FzaWtvcm5iYW5rcGFzc3dvcmQ=',
 ];
 
+// Create client instance
 $client = ClientBuilder::make()
     ->setConsumer($config['consumer_key'], $config['consumer_secret'])
     ->asSandbox()
     ->build();
 
+// Send request to get access token
 $response = $client->oauth2->sendRequest(new RequestAccessToken());
 
+// The response is a JSON object containing the following properties:
 echo '<pre>';
 print_r([
     'status' => $response->statusCode(),
