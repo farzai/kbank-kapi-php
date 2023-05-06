@@ -8,8 +8,17 @@ abstract class AbstractEntity implements JsonSerializable
 {
     protected $attributes = [];
 
+    public function __construct(array $attributes = [])
+    {
+        $this->fill($attributes);
+    }
+
     public function __get(string $name)
     {
+        if (method_exists($this, $method = 'get'.ucfirst($name).'Attribute')) {
+            return $this->{$method}($this->attributes[$name] ?? null);
+        }
+
         return $this->attributes[$name] ?? null;
     }
 
@@ -36,5 +45,14 @@ abstract class AbstractEntity implements JsonSerializable
     public function toArray(): array
     {
         return $this->attributes;
+    }
+
+    public function fill(array $attributes)
+    {
+        foreach ($attributes as $key => $value) {
+            $this->attributes[$key] = $value;
+        }
+
+        return $this;
     }
 }

@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace Farzai\KApi;
 
+use Farzai\KApi\Contracts\OAuth2AccessTokenRepositoryInterface;
 use Farzai\KApi\Logger\NullLogger;
+use Farzai\KApi\Storage\SystemTemporaryAccessTokenStorage;
 use GuzzleHttp\Client as GuzzleClient;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
@@ -50,6 +52,8 @@ final class ClientBuilder
 
     private ?LoggerInterface $logger;
 
+    private OAuth2AccessTokenRepositoryInterface $tokenRepository;
+
     /**
      * Create a new builder instance.
      */
@@ -63,7 +67,7 @@ final class ClientBuilder
      *
      * @return \Farzai\KApi\ClientBuilder
      */
-    public static function fromConfig(array $config): self
+    public static function fromConfig(array $config)
     {
         $builder = new static();
 
@@ -95,7 +99,7 @@ final class ClientBuilder
     /**
      * Set consumer id and secret
      */
-    public function setConsumer(string $id, string $secret): self
+    public function setConsumer(string $id, string $secret)
     {
         $this->consumer = base64_encode(
             implode(':', array_map('trim', [$id, $secret]))
@@ -107,7 +111,7 @@ final class ClientBuilder
     /**
      * Enable the sandbox
      */
-    public function asSandbox(): self
+    public function asSandbox()
     {
         $this->sandbox = true;
 
@@ -117,7 +121,7 @@ final class ClientBuilder
     /**
      * Disable the sandbox
      */
-    public function asProduction(): self
+    public function asProduction()
     {
         $this->sandbox = false;
 
@@ -129,7 +133,7 @@ final class ClientBuilder
      *
      * @param  string  $password
      */
-    public function withTwoWaySsl(string $cert, string $key, string $password = null): self
+    public function withTwoWaySsl(string $cert, string $key, string $password = null)
     {
         $this->sslVerification = true;
 
@@ -144,7 +148,7 @@ final class ClientBuilder
      *
      * @param  string  $password
      */
-    public function setSslCert(string $cert, string $password = null): self
+    public function setSslCert(string $cert, string $password = null)
     {
         $this->sslCert = [$cert, $password];
 
@@ -156,7 +160,7 @@ final class ClientBuilder
      *
      * @param  string  $password
      */
-    public function setSslKey(string $key, string $password = null): self
+    public function setSslKey(string $key, string $password = null)
     {
         $this->sslKey = [$key, $password];
 
@@ -166,7 +170,7 @@ final class ClientBuilder
     /**
      * Set the SSL verification
      */
-    public function setSslVerification(bool $verify): self
+    public function setSslVerification(bool $verify)
     {
         $this->sslVerification = $verify;
 
@@ -176,7 +180,7 @@ final class ClientBuilder
     /**
      * Set the client
      */
-    public function setClient(ClientInterface $client): self
+    public function setClient(ClientInterface $client)
     {
         $this->client = $client;
 
@@ -186,9 +190,19 @@ final class ClientBuilder
     /**
      * Set the logger
      */
-    public function setLogger(LoggerInterface $logger): self
+    public function setLogger(LoggerInterface $logger)
     {
         $this->logger = $logger;
+
+        return $this;
+    }
+
+    /**
+     * Set the token repository
+     */
+    public function setTokenRepository(OAuth2AccessTokenRepositoryInterface $tokenRepository)
+    {
+        $this->tokenRepository = $tokenRepository;
 
         return $this;
     }
@@ -198,19 +212,14 @@ final class ClientBuilder
      */
     public function build(): Client
     {
-        if (! $this->client) {
-            $this->ensureCertificationIsValid();
-        }
-
-        if (! $this->logger) {
-            $this->logger = new NullLogger();
-        }
+        $this->ensureCertificationIsValid();
 
         $client = new Client(
             client: new ClientLoggerAdapter(
-                client: $this->client ?? $this->getDefaultClient(),
+                client: $this->client,
                 logger: $this->logger,
             ),
+            tokenRepository: $this->tokenRepository,
         );
 
         $client->consumer = $this->consumer;
@@ -275,7 +284,8 @@ final class ClientBuilder
 
     private function __construct()
     {
-        $this->client = null;
-        $this->logger = null;
+        $this->logger = new NullLogger();
+        $this->tokenRepository = new SystemTemporaryAccessTokenStorage();
+        $this->client = $this->getDefaultClient();
     }
 }

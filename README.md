@@ -10,7 +10,11 @@ Welcome to the KBank API SDK for PHP! This SDK simplifies the process of integra
 
 ## Requirements
 ```
-PHP >= 8.0
+{
+    "php": "^8.0",
+    "ext-json": "*",
+    "ext-curl": "*"
+}
 ```
 
 ## Support products
@@ -26,10 +30,8 @@ PHP >= 8.0
 
 
 
-
 ## Please note
 This project is still under development.
-#### Tasks
 - [x] OAuth2 Authentication
 - [x] Setup environment and test suite
 - [ ] Documentation
@@ -45,7 +47,7 @@ This project is still under development.
 You can install the package via composer:
 
 ```bash
-composer require farzai/kapi
+composer require farzai/kapi-sdk
 ```
 
 ## Usage

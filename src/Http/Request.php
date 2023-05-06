@@ -8,6 +8,8 @@ use Psr\Http\Message\RequestInterface as PsrRequestInterface;
 
 abstract class Request implements RequestInterface
 {
+    const STUB_ACCESS_TOKEN = ':access_token:';
+
     protected $method = 'GET';
 
     protected $uri = '/';
@@ -55,6 +57,16 @@ abstract class Request implements RequestInterface
     }
 
     /**
+     * Request expects JSON.
+     */
+    protected function expectsJson()
+    {
+        $this->headers['Accept'] = 'application/json';
+
+        return $this;
+    }
+
+    /**
      * Request with token.
      */
     public function withToken($token, $type = 'Bearer')
@@ -65,9 +77,9 @@ abstract class Request implements RequestInterface
     /**
      * Request with bearer token.
      */
-    public function withBearerToken(string $token = ':access_token:')
+    public function withBearerToken(?string $token = null)
     {
-        return $this->withToken($token);
+        return $this->withToken($token ?: static::STUB_ACCESS_TOKEN);
     }
 
     /**

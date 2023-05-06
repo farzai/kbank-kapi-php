@@ -14,9 +14,10 @@ class RequestThaiQRCode extends Request
         $this
             ->post('/v1/qrpayment/request')
             ->asJson()
+            ->expectsJson()
             ->withBearerToken()
             ->withPayload([
-                'qrType' => 3,
+                'qrType' => 3, // 3 = Thai QR Code, 4 = Credit Card
                 'txnCurrencyCode' => 'THB',
                 'reference1' => '',
                 'reference2' => '',
@@ -59,5 +60,74 @@ class RequestThaiQRCode extends Request
         return $this->withPayload([
             'terminalId' => $id,
         ]);
+    }
+
+    /**
+     * Set amount.
+     *
+     * @param  float  $amount
+     */
+    public function setAmount($amount)
+    {
+        return $this->withPayload([
+            'txnAmount' => sprintf('%.2f', $amount),
+        ]);
+    }
+
+    /**
+     * Set currency.
+     *
+     * @param  string  $currency
+     */
+    public function setCurrency($currency)
+    {
+        $currency = strtoupper($currency);
+
+        $currencies = [
+            'THB',
+        ];
+
+        if (! in_array($currency, $currencies)) {
+            throw new \InvalidArgumentException("Currency \"{$currency}\" is not supported.");
+        }
+
+        return $this->withPayload([
+            'txnCurrencyCode' => $currency,
+        ]);
+    }
+
+    /**
+     * Set metadata.
+     *
+     * @param  string|array  $metadata
+     */
+    public function setMetadata($metadata)
+    {
+        return $this->withPayload([
+            'metadata' => is_array($metadata) ? implode(', ', $metadata) : $metadata,
+        ]);
+    }
+
+    /**
+     * Set references
+     *
+     * @param  string  $references
+     */
+    public function setReferences(...$references)
+    {
+        if (count($references) > 4) {
+            throw new \InvalidArgumentException('Maximum reference is 4.');
+        }
+
+        if (count($references) === 0) {
+            throw new \InvalidArgumentException('At least one reference is required.');
+        }
+
+        return $this->withPayload(array_merge([
+            'reference1' => '',
+            'reference2' => '',
+            'reference3' => '',
+            'reference4' => '',
+        ], array_combine(array_map(fn ($i) => "reference{$i}", range(1, count($references))), $references)));
     }
 }

@@ -1,5 +1,5 @@
 {
-    "name": "farzai/kapi",
+    "name": "farzai/kapi-sdk",
     "description": "This SDK simplifies the process of integrating with KBank APIs",
     "keywords": [
         "farzai",
@@ -15,7 +15,6 @@
     "authors": [
         {
             "name": "parsilver",
-            "email": "parkorn@farzai.com",
             "role": "Developer"
         }
     ],
