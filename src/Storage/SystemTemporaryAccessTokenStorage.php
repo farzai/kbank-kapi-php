@@ -15,14 +15,16 @@ class SystemTemporaryAccessTokenStorage implements OAuth2AccessTokenRepositoryIn
     /**
      * Create a new storage instance.
      */
-    public function __construct()
+    public function __construct(
+        protected string $prefix
+    )
     {
         // Check if the system temporary directory is readable and writable.
         if (! is_readable(sys_get_temp_dir()) || ! is_writable(sys_get_temp_dir())) {
             throw new \RuntimeException('The system temporary directory is not readable or writable.');
         }
 
-        $this->path = sys_get_temp_dir().DIRECTORY_SEPARATOR.'kapi-php';
+        $this->path = sys_get_temp_dir().DIRECTORY_SEPARATOR.'kapi-php__'.$this->prefix;
     }
 
     /**
@@ -31,15 +33,13 @@ class SystemTemporaryAccessTokenStorage implements OAuth2AccessTokenRepositoryIn
     public function retrieve(): ?AccessToken
     {
         // Get the access token from the storage.
-        $data = file_get_contents($this->path);
-
         // If the access token is not found, return null.
-        if ($data === false) {
+        if (false === ($content = @file_get_contents($this->path))) {
             return null;
         }
 
         // Decode the access token.
-        if (false === ($data = @json_decode($data, true)) || empty($data)) {
+        if (false === ($data = @json_decode($content, true))) {
             return null;
         }
 

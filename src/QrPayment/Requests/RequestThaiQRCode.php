@@ -43,6 +43,9 @@ class RequestThaiQRCode extends Request
         ]);
     }
 
+    /**
+     * Set qrcode type to type 3 (Thai QR Code).
+     */
     public function asThaiQrCode()
     {
         return $this->setQrType(3);

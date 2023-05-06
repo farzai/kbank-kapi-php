@@ -52,7 +52,7 @@ final class ClientBuilder
 
     private ?LoggerInterface $logger;
 
-    private OAuth2AccessTokenRepositoryInterface $tokenRepository;
+    private ?OAuth2AccessTokenRepositoryInterface $tokenRepository;
 
     /**
      * Create a new builder instance.
@@ -219,7 +219,9 @@ final class ClientBuilder
                 client: $this->client,
                 logger: $this->logger,
             ),
-            tokenRepository: $this->tokenRepository,
+            tokenRepository: $this->tokenRepository ?: new SystemTemporaryAccessTokenStorage(
+                prefix: "{$this->consumer}:" . ($this->sandbox ? 'sandbox' : 'production') . ":"
+            ),
         );
 
         $client->consumer = $this->consumer;
@@ -285,7 +287,7 @@ final class ClientBuilder
     private function __construct()
     {
         $this->logger = new NullLogger();
-        $this->tokenRepository = new SystemTemporaryAccessTokenStorage();
+        $this->tokenRepository = null;
         $this->client = $this->getDefaultClient();
     }
 }

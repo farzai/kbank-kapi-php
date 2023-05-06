@@ -34,7 +34,7 @@ $request
         partnerSecret: 'PPsaiu7890yyatcionmsp01ooYY46789',
         requestDateTime: $currentDate,
     )
-    ->setAmount(amount: 100.00)
+    ->setAmount(amount: 100)
     ->setReferences(reference: 'INV001')
 
     // Optional
