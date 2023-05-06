@@ -220,7 +220,7 @@ final class ClientBuilder
                 logger: $this->logger,
             ),
             tokenRepository: $this->tokenRepository ?: new SystemTemporaryAccessTokenStorage(
-                prefix: "{$this->consumer}:" . ($this->sandbox ? 'sandbox' : 'production') . ":"
+                prefix: "{$this->consumer}:".($this->sandbox ? 'sandbox' : 'production').':'
             ),
         );
 

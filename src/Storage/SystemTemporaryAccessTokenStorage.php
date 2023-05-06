@@ -17,8 +17,7 @@ class SystemTemporaryAccessTokenStorage implements OAuth2AccessTokenRepositoryIn
      */
     public function __construct(
         protected string $prefix
-    )
-    {
+    ) {
         // Check if the system temporary directory is readable and writable.
         if (! is_readable(sys_get_temp_dir()) || ! is_writable(sys_get_temp_dir())) {
             throw new \RuntimeException('The system temporary directory is not readable or writable.');
