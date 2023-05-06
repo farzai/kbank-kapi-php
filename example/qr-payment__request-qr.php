@@ -48,7 +48,6 @@ $request
     )
 
     // Optional
-    ->setTerminal(id: '09000107') 
-;
+    ->setTerminal(id: '09000107');
 
 $response = $client->qrPayment->sendRequest($request);

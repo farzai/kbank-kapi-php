@@ -18,10 +18,10 @@ class RequestThaiQRCode extends Request
             ->withPayload([
                 'qrType' => 3,
                 'txnCurrencyCode' => 'THB',
-                'reference1' => "",
-                'reference2' => "",
-                'reference3' => "",
-                'reference4' => "",
+                'reference1' => '',
+                'reference2' => '',
+                'reference3' => '',
+                'reference4' => '',
             ]);
     }
 

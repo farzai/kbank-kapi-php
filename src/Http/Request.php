@@ -65,7 +65,7 @@ abstract class Request implements RequestInterface
     /**
      * Request with bearer token.
      */
-    public function withBearerToken(string $token = ":access_token:")
+    public function withBearerToken(string $token = ':access_token:')
     {
         return $this->withToken($token);
     }
