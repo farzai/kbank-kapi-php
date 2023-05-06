@@ -7,14 +7,23 @@
 
 Welcome to the KBank API SDK for PHP! This SDK simplifies the process of integrating with KBank APIs by providing a set of pre-built functions that handle authentication, requests, and responses. With this SDK, developers can easily build applications that leverage KBank services, such as payment processing, account management, and more. The KBank API SDK for PHP is designed to be easy to use, with clear documentation and examples to get you started quickly.
 
+
+## Requirements
+```
+PHP >= 8.0
+```
+
 ## Support products
 
-- [ ] [QR Payment](https://apiportal.kasikornbank.com/product/public/All/QR%20Payment/Introduction/GETTING%20STARTED)
-- [ ] [Bill Payment](https://apiportal.kasikornbank.com/product/public/All/Bill%20Payment/Introduction/GETTING%20STARTED)
-- [ ] [Slip Verification](https://apiportal.kasikornbank.com/product/public/All/Slip%20Verification/Introduction/Getting%20Started)
-- [ ] [Inward Remittance](https://apiportal.kasikornbank.com/product/public/All/Inward%20Remittance/Introduction/GETTING%20STARTED)
-- [ ] [KGP Merchant Payment Platform](https://apiportal.kasikornbank.com/product/public/All/KGP%20Merchant%20Payment%20Platform/Introduction/Getting%20Started)
-- [ ] [Corporate Fund Transfer](https://apiportal.kasikornbank.com/product/public/All/Corporate%20%20Fund%20Transfer/Introduction/Getting%20Started)
+| Done | Products                   | 
+| --- |-----------------------------------|
+|  -  | [QR Payment](https://apiportal.kasikornbank.com/product/public/All/QR%20Payment/Introduction/GETTING%20STARTED) | 
+|  -  | [Bill Payment](https://apiportal.kasikornbank.com/product/public/All/Bill%20Payment/Introduction/GETTING%20STARTED) | 
+|  -  | [Slip Verification](https://apiportal.kasikornbank.com/product/public/All/Slip%20Verification/Introduction/Getting%20Started) | 
+|  -  | [Inward Remittance](https://apiportal.kasikornbank.com/product/public/All/Inward%20Remittance/Introduction/GETTING%20STARTED) | 
+|  -  | [KGP Merchant Payment Platform](https://apiportal.kasikornbank.com/product/public/All/KGP%20Merchant%20Payment%20Platform/Introduction/Getting%20Started) | 
+|  -  | [Corporate Fund Transfer](https://apiportal.kasikornbank.com/product/public/All/Corporate%20%20Fund%20Transfer/Introduction/Getting%20Started) |
+
 
 
 
