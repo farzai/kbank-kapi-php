@@ -50,11 +50,11 @@ $response = $client->qrPayment->sendRequest($request);
 $psrRequest = $client->prepareRequest($request->toPsrRequest());
 
 // Print request
-echo "<pre>";
+echo '<pre>';
 print_r([
     'data' => $response->json(),
 ]);
-echo "</pre>";
+echo '</pre>';
 
 // Array
 // (
@@ -63,8 +63,8 @@ echo "</pre>";
 //             [partnerTxnUid] => 1683384864
 //             [partnerId] => POS001
 //             [statusCode] => 00
-//             [errorCode] => 
-//             [errorDesc] => 
+//             [errorCode] =>
+//             [errorDesc] =>
 //             [accountName] => Kasikorn API
 //             [qrCode] => xxxxxxxxxxxxxxx
 //             [sof] => Array
