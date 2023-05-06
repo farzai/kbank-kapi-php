@@ -47,8 +47,6 @@ $request
 
 $response = $client->qrPayment->sendRequest($request);
 
-$psrRequest = $client->prepareRequest($request->toPsrRequest());
-
 // Print request
 echo '<pre>';
 print_r([

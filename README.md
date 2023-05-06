@@ -97,6 +97,9 @@ $request
         'เหล้าขาว 60บ.',
     ]);
 
+// Send request
+$response = $client->qrPayment->sendRequest($request);
+
 // Print response data
 print_r($response->json());
 
