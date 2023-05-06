@@ -52,8 +52,56 @@ composer require farzai/kapi-sdk
 
 ## Usage
 
+This is a simple example of qr payment.
 ```php
-// 
+
+use Farzai\KApi\ClientBuilder;
+use Farzai\KApi\QrPayment\Requests as QrPaymentRequests;
+
+// Create client instance
+$client = ClientBuilder::make()
+    ->setConsumer("<YOUR_CONSUMER_ID>", "<YOUR_CONSUMER_SECRET>")
+    ->asSandbox()
+    ->build();
+
+
+// This SDK will automatically generate oauth2 access token for you.
+// You can ignore this step !!
+
+// -----
+// Build request
+
+$currentDate = new \DateTime('now');
+$transactionId = 'TS'.time();
+
+$request = new QrPaymentRequests\RequestThaiQRCode();
+
+$request
+    // Required
+    ->setMerchant(id: '<YOUR_MERCHANT_ID>')
+    ->setPartner(
+        partnerTransactionID: $transactionId,
+        partnerID: '<YOUR_PARTNER_ID>',
+        partnerSecret: '<YOUR_PARTNER_SECRET>',
+        requestDateTime: $currentDate,
+    )
+    ->setAmount(amount: 100)
+    ->setReferences('<YOUR_ORDER_ID>')
+    // or ->setReferences('<reference1>', '<reference2>', '<reference3>', '<reference4>')
+
+    // Optional
+    ->setTerminal('<YOUR_TERMINAL_ID>')
+    ->setCurrency('THB') // Default is THB
+    ->setMetadata([
+        'แก้วเบียร์ 40บ.',
+        'เหล้าขาว 60บ.',
+    ]);
+
+// Print response data
+print_r($response->json());
+
+// Or, you can get response data with specific key
+echo $response->json('partnerTxnUid'); // Output: xxxxxxx
 ```
 
 ## Testing
