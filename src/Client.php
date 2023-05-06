@@ -86,7 +86,7 @@ class Client implements ClientInterface
     /**
      * Prepare the request.
      */
-    protected function prepareRequest(PsrRequestInterface $request): PsrRequestInterface
+    public function prepareRequest(PsrRequestInterface $request): PsrRequestInterface
     {
         $uri = $request->getUri();
 

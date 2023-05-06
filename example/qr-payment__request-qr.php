@@ -47,11 +47,13 @@ $request
 
 $response = $client->qrPayment->sendRequest($request);
 
+$psrRequest = $client->prepareRequest($request->toPsrRequest());
+
 dd([
     'request' => [
-        'headers' => $request->getHeaders(),
-        'body' => json_decode($request->getBody(), true),
-        'uri' => $request->getUri(),
+        'headers' => $psrRequest->getHeaders(),
+        'body' => json_decode($psrRequest->getBody(), true),
+        'uri' => (string) $psrRequest->getUri(),
     ],
     'response' => $response->json(),
 ]);
