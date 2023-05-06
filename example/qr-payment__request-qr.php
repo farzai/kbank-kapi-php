@@ -20,7 +20,7 @@ $client = ClientBuilder::make()
     ->build();
 
 $currentDate = new \DateTime('now', new \DateTimeZone('Asia/Bangkok'));
-$transactionId = 'POS001'.time();
+$transactionId = 'TS'.time();
 
 // Send request to get QR code
 $request = new RequestThaiQRCode();
@@ -35,7 +35,7 @@ $request
         requestDateTime: $currentDate,
     )
     ->setAmount(amount: 100)
-    ->setReferences(reference: 'INV001')
+    ->setReferences('INV001')
 
     // Optional
     ->setTerminal(id: '09000107')
@@ -49,11 +49,27 @@ $response = $client->qrPayment->sendRequest($request);
 
 $psrRequest = $client->prepareRequest($request->toPsrRequest());
 
-dd([
-    'request' => [
-        'headers' => $psrRequest->getHeaders(),
-        'body' => json_decode($psrRequest->getBody(), true),
-        'uri' => (string) $psrRequest->getUri(),
-    ],
-    'response' => $response->json(),
+// Print request
+echo "<pre>";
+print_r([
+    'data' => $response->json(),
 ]);
+echo "</pre>";
+
+// Array
+// (
+//     [data] => Array
+//         (
+//             [partnerTxnUid] => 1683384864
+//             [partnerId] => POS001
+//             [statusCode] => 00
+//             [errorCode] => 
+//             [errorDesc] => 
+//             [accountName] => Kasikorn API
+//             [qrCode] => xxxxxxxxxxxxxxx
+//             [sof] => Array
+//                 (
+//                     [0] => PP
+//                 )
+//         )
+// )

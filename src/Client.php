@@ -7,6 +7,7 @@ namespace Farzai\KApi;
 use DateTime;
 use Farzai\KApi\Contracts\ClientInterface;
 use Farzai\KApi\Contracts\OAuth2AccessTokenRepositoryInterface;
+use Farzai\KApi\Contracts\ResponseInterface;
 use Farzai\KApi\Entities\AccessToken;
 use Farzai\KApi\Http\Request;
 use Farzai\KApi\OAuth2\Requests\RequestAccessToken;
@@ -116,6 +117,10 @@ class Client implements ClientInterface
 
         $request = $request->withHeader('User-Agent', self::CLIENT_NAME.'/'.self::VERSION);
 
+        if ($request->hasHeader('Host')) {
+            $request = $request->withoutHeader('Host');
+        }
+
         return $request;
     }
 
@@ -149,7 +154,9 @@ class Client implements ClientInterface
         );
 
         if (! $response->isSuccessfull()) {
-            throw new \Exception('Unable to grant a new access token.');
+            $errorMessage = $this->guessErrorMessage($response);
+
+            throw new \Exception('Unable to grant a new access token: '.$errorMessage);
         }
 
         return new AccessToken(array_merge($response->json(), [
@@ -170,6 +177,18 @@ class Client implements ClientInterface
         }
 
         throw new \Exception('Undefined property: '.static::class.'::$'.$name);
+    }
+
+    /**
+     * Guess the error message from the response.
+     */
+    private function guessErrorMessage(ResponseInterface $response): string
+    {
+        return $response->json('error_description')
+            ?: $response->json('error')
+            ?: $response->json('message')
+            ?: $response->json('error_message')
+            ?: $response->json('error_msg');
     }
 
     /**

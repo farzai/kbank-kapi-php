@@ -35,6 +35,13 @@ class RequestThaiQRCode extends Request
             $requestDateTime = $requestDateTime->format('Y-m-d\TH:i:sP');
         }
 
+        // Validate partnerTxnUid length
+        $partnerTransactionID = (string) $partnerTransactionID;
+        if (strlen($partnerTransactionID) > 15) {
+            // Documentation not mention about error code if partnerTxnUid is longer than 15 characters.
+            throw new \InvalidArgumentException('Partner transaction ID (partnerTxnUid) must not be longer than 15 characters.');
+        }
+
         return $this->withPayload([
             'partnerTxnUid' => (string) $partnerTransactionID,
             'partnerId' => (string) $partnerID,
