@@ -2,7 +2,7 @@
 
 use Farzai\KApi\Client;
 use Farzai\KApi\ClientBuilder;
-use Psr\Http\Client\ClientInterface;
+use Psr\Http\Client\ClientInterface as PsrClientInterface;
 
 it('can build a client', function () {
     $client = ClientBuilder::make()
@@ -10,7 +10,7 @@ it('can build a client', function () {
         ->build();
 
     expect($client)->toBeInstanceOf(Client::class);
-    expect($client)->toBeInstanceOf(ClientInterface::class);
+    expect($client->getPsrClient())->toBeInstanceOf(PsrClientInterface::class);
 });
 
 it('should consumer encode with base64 valid', function () {

@@ -3,7 +3,7 @@
 require_once __DIR__.'/../vendor/autoload.php';
 
 use Farzai\KApi\ClientBuilder;
-use Farzai\KApi\OAuth2\Requests\RequestAccessToken;
+use Farzai\KApi\OAuth2\Requests as OAuth2Requests;
 
 // This is example credentials (Don't worry, it's not real credentials)
 // (ref: https://apiportal.kasikornbank.com/product/public/All/QR%20Payment/Try%20API/OAuth%202.0)
@@ -20,7 +20,9 @@ $client = ClientBuilder::make()
     ->build();
 
 // Send request to get access token
-$response = $client->oauth2->sendRequest(new RequestAccessToken());
+$response = $client->oauth2->sendRequest(
+    new OAuth2Requests\RequestAccessToken()
+);
 
 // The response is a JSON object containing the following properties:
 echo '<pre>';

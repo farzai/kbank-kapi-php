@@ -4,24 +4,25 @@ declare(strict_types=1);
 
 namespace Farzai\KApi;
 
-use DateTime;
-use Farzai\KApi\Contracts\ClientInterface;
+use Farzai\KApi\Contracts\ClientInterface as KApiClientInterface;
 use Farzai\KApi\Contracts\OAuth2AccessTokenRepositoryInterface;
+use Farzai\KApi\Contracts\RequestInterface;
 use Farzai\KApi\Contracts\ResponseInterface;
 use Farzai\KApi\Entities\AccessToken;
 use Farzai\KApi\Http\Request;
+use Farzai\KApi\Http\Response;
 use Farzai\KApi\OAuth2\Requests\RequestAccessToken;
+use Farzai\KApi\Support\DT;
 use Farzai\KApi\Support\Str;
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Client\ClientInterface as PsrClientInterface;
 use Psr\Http\Message\RequestInterface as PsrRequestInterface;
-use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
 /**
  * @property-read \Farzai\KApi\OAuth2\Endpoint $oauth2
  * @property-read \Farzai\KApi\QrPayment\Endpoint $qrPayment
  */
-class Client implements ClientInterface
+class Client implements KApiClientInterface
 {
     const CLIENT_NAME = 'kapi-php';
 
@@ -37,7 +38,7 @@ class Client implements ClientInterface
      */
     public bool $sandbox = false;
 
-    protected $timezone = 'Asia/Bangkok';
+    public $timezone = 'Asia/Bangkok';
 
     /**
      * Create a new client instance.
@@ -69,11 +70,13 @@ class Client implements ClientInterface
     /**
      * Send the request.
      */
-    public function sendRequest(PsrRequestInterface $request): PsrResponseInterface
+    public function sendRequest(RequestInterface $request): ResponseInterface
     {
-        return $this->client->sendRequest(
-            $this->prepareRequest($request)
+        $psrResponse = $this->client->sendRequest(
+            $psrRequest = $this->normalizeRequest($request->toPsrRequest())
         );
+
+        return new Response($psrRequest, $psrResponse);
     }
 
     /**
@@ -91,7 +94,7 @@ class Client implements ClientInterface
     /**
      * Prepare the request.
      */
-    public function prepareRequest(PsrRequestInterface $request): PsrRequestInterface
+    public function normalizeRequest(PsrRequestInterface $request): PsrRequestInterface
     {
         $uri = $request->getUri();
 
@@ -125,6 +128,22 @@ class Client implements ClientInterface
     }
 
     /**
+     * Get current timezone.
+     */
+    public function getTimezone(): string
+    {
+        return $this->timezone;
+    }
+
+    /**
+     * Get psr client.
+     */
+    public function getPsrClient(): PsrClientInterface
+    {
+        return $this->client;
+    }
+
+    /**
      * OAuth2 endpoint.
      *
      * @return \Farzai\KApi\OAuth2\Endpoint
@@ -154,13 +173,11 @@ class Client implements ClientInterface
         );
 
         if (! $response->isSuccessfull()) {
-            $errorMessage = $this->guessErrorMessage($response);
-
-            throw new \Exception('Unable to grant a new access token: '.$errorMessage);
+            throw new \Exception('Unable to grant a new access token');
         }
 
         return new AccessToken(array_merge($response->json(), [
-            'issued_at' => new DateTime('now', new \DateTimeZone($this->timezone)),
+            'issued_at' => DT::now($this->getTimezone()),
         ]));
     }
 
@@ -177,18 +194,6 @@ class Client implements ClientInterface
         }
 
         throw new \Exception('Undefined property: '.static::class.'::$'.$name);
-    }
-
-    /**
-     * Guess the error message from the response.
-     */
-    private function guessErrorMessage(ResponseInterface $response): string
-    {
-        return $response->json('error_description')
-            ?: $response->json('error')
-            ?: $response->json('message')
-            ?: $response->json('error_message')
-            ?: $response->json('error_msg');
     }
 
     /**

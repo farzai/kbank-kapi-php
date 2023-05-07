@@ -6,7 +6,7 @@ namespace Farzai\KApi;
 
 use Farzai\KApi\Contracts\OAuth2AccessTokenRepositoryInterface;
 use Farzai\KApi\Logger\NullLogger;
-use Farzai\KApi\Storage\SystemTemporaryAccessTokenStorage;
+use Farzai\KApi\Storage\SystemTemporaryAccessTokenRepository;
 use GuzzleHttp\Client as GuzzleClient;
 use Psr\Http\Client\ClientInterface;
 use Psr\Log\LoggerInterface;
@@ -53,6 +53,8 @@ final class ClientBuilder
     private ?LoggerInterface $logger;
 
     private ?OAuth2AccessTokenRepositoryInterface $tokenRepository;
+
+    private $timezone = 'Asia/Bangkok';
 
     /**
      * Create a new builder instance.
@@ -124,6 +126,7 @@ final class ClientBuilder
     public function asProduction()
     {
         $this->sandbox = false;
+        $this->sslVerification = true;
 
         return $this;
     }
@@ -214,18 +217,21 @@ final class ClientBuilder
     {
         $this->ensureCertificationIsValid();
 
+        $tokenRepository = $this->tokenRepository ?: new SystemTemporaryAccessTokenRepository(
+            prefix: "{$this->consumer}:".($this->sandbox ? 'sandbox' : 'production').':'
+        );
+
         $client = new Client(
             client: new ClientLoggerAdapter(
                 client: $this->client,
                 logger: $this->logger,
             ),
-            tokenRepository: $this->tokenRepository ?: new SystemTemporaryAccessTokenStorage(
-                prefix: "{$this->consumer}:".($this->sandbox ? 'sandbox' : 'production').':'
-            ),
+            tokenRepository: $tokenRepository,
         );
 
         $client->consumer = $this->consumer;
         $client->sandbox = $this->sandbox;
+        $client->timezone = $this->timezone;
 
         return $client;
     }

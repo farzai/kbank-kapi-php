@@ -8,7 +8,6 @@ use Farzai\KApi\Contracts\ClientInterface;
 use Farzai\KApi\Contracts\EndpointInterface as EndpointContract;
 use Farzai\KApi\Contracts\RequestInterface;
 use Farzai\KApi\Contracts\ResponseInterface;
-use Farzai\KApi\Http\Response;
 
 abstract class AbstractEndpoint implements EndpointContract
 {
@@ -27,6 +26,6 @@ abstract class AbstractEndpoint implements EndpointContract
      */
     public function sendRequest(RequestInterface $request): ResponseInterface
     {
-        return new Response($this->client->sendRequest($request->toPsrRequest()));
+        return $this->client->sendRequest($request);
     }
 }

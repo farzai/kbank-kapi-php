@@ -3,23 +3,25 @@
 namespace Farzai\KApi\Http;
 
 use Farzai\KApi\Contracts\ResponseInterface;
+use Farzai\KApi\Exceptions\ResponseExceptionFactory;
+use Psr\Http\Message\RequestInterface as PsrRequestInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
 class Response implements ResponseInterface
 {
-    protected PsrResponseInterface $response;
-
     /**
      * @var mixed
      */
-    protected $jsonDecorded;
+    protected $jsonDecoded;
 
     /**
      * Create a new response instance.
      */
-    public function __construct(PsrResponseInterface $response)
-    {
-        $this->response = $response;
+    public function __construct(
+        protected PsrRequestInterface $request,
+        protected PsrResponseInterface $response
+    ) {
+        //
     }
 
     /**
@@ -57,30 +59,60 @@ class Response implements ResponseInterface
     }
 
     /**
-     * Return the psr response.
-     */
-    public function toPsrResponse(): PsrResponseInterface
-    {
-        return $this->response;
-    }
-
-    /**
      * Return the json decoded response.
      */
     public function json(?string $key = null): mixed
     {
-        if ($this->jsonDecorded !== false && is_null($this->jsonDecorded)) {
-            $this->jsonDecorded = @json_decode($this->response->getBody()->getContents(), true);
+        if (is_null($this->jsonDecoded)) {
+            $this->jsonDecoded = @json_decode($this->response->getBody()->getContents(), true) ?: false;
         }
 
-        if ($this->jsonDecorded === false) {
+        if ($this->jsonDecoded === false) {
             return null;
         }
 
         if (is_null($key)) {
-            return $this->jsonDecorded;
+            return $this->jsonDecoded;
         }
 
-        return $this->jsonDecorded[$key] ?? null;
+        return $this->jsonDecoded[$key] ?? null;
+    }
+
+    /**
+     * Throw an exception if the response is not successfull.
+     *
+     * @param  callable|null  $callback Custom callback to throw an exception.
+     * @return $this
+     *
+     * @throws \Psr\Http\Client\ClientExceptionInterface
+     */
+    public function throw(callable $callback = null)
+    {
+        $callback = $callback ?? function (ResponseInterface $response, \Exception $e) {
+            if (! $this->isSuccessfull()) {
+                throw $e;
+            }
+
+            return $response;
+        };
+
+        return $callback($this, ResponseExceptionFactory::create($this))
+            ?: $this;
+    }
+
+    /**
+     * Return the psr request.
+     */
+    public function getPsrRequest(): PsrRequestInterface
+    {
+        return $this->request;
+    }
+
+    /**
+     * Return the psr response.
+     */
+    public function getPsrResponse(): PsrResponseInterface
+    {
+        return $this->response;
     }
 }

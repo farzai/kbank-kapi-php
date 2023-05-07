@@ -16,8 +16,10 @@ class RequestThaiQRCode extends Request
             ->asJson()
             ->expectsJson()
             ->withBearerToken()
-            ->asThaiQrCode()
-            ->setCurrency('THB');
+            ->setCurrency('THB')
+            ->withPayload([
+                'qrType' => 3,
+            ]);
     }
 
     /**
@@ -28,7 +30,7 @@ class RequestThaiQRCode extends Request
      * @param  string  $partnerSecret
      * @param  \DateTimeInterface|string  $requestDateTime This will be formatted to: 2018-04-05T12:30:00+07:00
      */
-    public function setPartner($partnerID, $partnerSecret, $partnerTransactionID, $requestDateTime)
+    public function setPartner($partnerID, $partnerSecret, $partnerTransactionID, $requestDateTime = null)
     {
         // Format to: 2018-04-05T12:30:00+07:00
         if ($requestDateTime instanceof \DateTimeInterface) {
@@ -47,26 +49,6 @@ class RequestThaiQRCode extends Request
             'partnerId' => (string) $partnerID,
             'partnerSecret' => (string) $partnerSecret,
             'requestDt' => (string) $requestDateTime,
-        ]);
-    }
-
-    /**
-     * Set qrcode type to type 3 (Thai QR Code).
-     */
-    public function asThaiQrCode()
-    {
-        return $this->setQrType(3);
-    }
-
-    /**
-     * Set QR type.
-     *
-     * @param  int  $qrType 3 = Thai QR Code, 4 = Credit Card
-     */
-    public function setQrType($qrType)
-    {
-        return $this->withPayload([
-            'qrType' => (string) $qrType,
         ]);
     }
 
@@ -113,11 +95,11 @@ class RequestThaiQRCode extends Request
      */
     public function setCurrency($currency)
     {
-        $currency = strtoupper($currency);
-
         $currencies = [
             'THB',
         ];
+
+        $currency = strtoupper($currency);
 
         if (! in_array($currency, $currencies)) {
             throw new \InvalidArgumentException("Currency \"{$currency}\" is not supported.");
@@ -132,11 +114,12 @@ class RequestThaiQRCode extends Request
      * Set metadata.
      *
      * @param  string|array  $metadata
+     * @param  string  $delimiter
      */
-    public function setMetadata($metadata)
+    public function setMetadata($metadata, $delimiter = ',')
     {
         return $this->withPayload([
-            'metadata' => is_array($metadata) ? implode(', ', $metadata) : $metadata,
+            'metadata' => is_array($metadata) ? implode($delimiter, $metadata) : $metadata,
         ]);
     }
 
