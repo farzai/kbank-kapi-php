@@ -113,7 +113,7 @@ echo $response->json('partnerTxnUid'); // Output: xxxxxxx
 
 Sometime, you may want to handle webhook from payment notification service
 ```php
-use Farzai\KApi\OAuth2;
+use Farzai\KApi\QrPayment;
 
 // This SDK will automatically validate your request.
 $result = $client->processWebhook(new QrPayment\PaymentNotificationCallback);
