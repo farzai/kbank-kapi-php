@@ -57,6 +57,11 @@ final class ClientBuilder
     private $timezone = 'Asia/Bangkok';
 
     /**
+     * @var \Closure|callable|null
+     */
+    private $serverRequestCreator;
+
+    /**
      * Create a new builder instance.
      */
     public static function make(): static
@@ -211,6 +216,16 @@ final class ClientBuilder
     }
 
     /**
+     * Set server request creator
+     */
+    public function usingCreateServerRequest(callable $callback)
+    {
+        $this->serverRequestCreator = $callback;
+
+        return $this;
+    }
+
+    /**
      * Build the client
      */
     public function build(): Client
@@ -232,6 +247,7 @@ final class ClientBuilder
         $client->consumer = $this->consumer;
         $client->sandbox = $this->sandbox;
         $client->timezone = $this->timezone;
+        $client->serverRequestUsing = $this->serverRequestCreator;
 
         return $client;
     }

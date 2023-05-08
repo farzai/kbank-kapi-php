@@ -42,6 +42,8 @@ class Client implements KApiClientInterface
 
     public $timezone = 'Asia/Bangkok';
 
+    public $serverRequestUsing;
+
     /**
      * Create a new client instance.
      */
@@ -49,7 +51,7 @@ class Client implements KApiClientInterface
         private PsrClientInterface $client,
         private AccessTokenRepositoryInterface $tokenRepository
     ) {
-        //
+        
     }
 
     /**
@@ -86,7 +88,18 @@ class Client implements KApiClientInterface
      */
     public function processWebhook(WebhookHandlerInterface $webhook)
     {
-        return $webhook->handle(new ServerRequest(GuzzleServerRequest::fromGlobals()));
+        $createDefaultServerRequest = function () {
+            return GuzzleServerRequest::fromGlobals();
+        };
+
+        $createServerRequest = $this->serverRequestUsing ?? $createDefaultServerRequest;
+        
+        $psrRequest = $createServerRequest();
+        if (! $psrRequest instanceof PsrRequestInterface) {
+            $psrRequest = $createDefaultServerRequest();
+        }
+
+        return $webhook->handle(new ServerRequest($psrRequest));
     }
 
     /**
