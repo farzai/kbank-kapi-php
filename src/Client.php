@@ -51,7 +51,7 @@ class Client implements KApiClientInterface
         private PsrClientInterface $client,
         private AccessTokenRepositoryInterface $tokenRepository
     ) {
-        
+
     }
 
     /**
@@ -93,7 +93,7 @@ class Client implements KApiClientInterface
         };
 
         $createServerRequest = $this->serverRequestUsing ?? $createDefaultServerRequest;
-        
+
         $psrRequest = $createServerRequest();
         if (! $psrRequest instanceof PsrRequestInterface) {
             $psrRequest = $createDefaultServerRequest();
