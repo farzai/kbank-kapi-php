@@ -14,7 +14,6 @@ use Farzai\KApi\Http\Response;
 use Farzai\KApi\Http\ServerRequest;
 use Farzai\KApi\OAuth2\Requests\RequestAccessToken;
 use Farzai\KApi\Support\DT;
-use Farzai\KApi\Support\Str;
 use GuzzleHttp\Psr7\ServerRequest as GuzzleServerRequest;
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Client\ClientInterface as PsrClientInterface;
@@ -43,6 +42,11 @@ class Client implements KApiClientInterface
     public $timezone = 'Asia/Bangkok';
 
     public $serverRequestUsing;
+
+    private $endpoints = [
+        'oauth2' => OAuth2\Endpoint::class,
+        'qrPayment' => QrPayment\Endpoint::class,
+    ];
 
     /**
      * Create a new client instance.
@@ -130,7 +134,7 @@ class Client implements KApiClientInterface
 
             // If the value contains ":access_token:" then we will replace it with the access token.
             if (strpos($value, Request::STUB_ACCESS_TOKEN) !== false) {
-                $accessToken = $this->resolveAccessToken();
+                $accessToken = $this->issueAccessToken();
 
                 $request = $request->withHeader(
                     'Authorization',
@@ -166,50 +170,10 @@ class Client implements KApiClientInterface
         return $this->client;
     }
 
-    /**
-     * OAuth2 endpoint.
-     *
-     * @return \Farzai\KApi\OAuth2\Endpoint
-     */
-    private function createOAuth2Endpoint()
-    {
-        return new OAuth2\Endpoint($this);
-    }
-
-    /**
-     * QrPayment endpoint.
-     *
-     * @return \Farzai\KApi\QrPayment\Endpoint
-     */
-    private function createQrPaymentEndpoint()
-    {
-        return new QrPayment\Endpoint($this);
-    }
-
-    /**
-     * Grant a new access token.
-     */
-    private function requestNewAccessToken(): AccessToken
-    {
-        $response = $this->oauth2->sendRequest(
-            new RequestAccessToken()
-        );
-
-        if (! $response->isSuccessfull()) {
-            throw new \Exception('Unable to grant a new access token');
-        }
-
-        return new AccessToken(array_merge($response->json(), [
-            'issued_at' => DT::now($this->getTimezone()),
-        ]));
-    }
-
     public function __get($name)
     {
-        // Forwards the property to the endpoint.
-        $methodName = 'create'.ucfirst(Str::camel($name)).'Endpoint';
-        if (method_exists($this, $methodName)) {
-            return $this->{$methodName}();
+        if (array_key_exists($name, $this->endpoints)) {
+            return new $this->endpoints[$name]($this);
         }
 
         if (property_exists($this, $name)) {
@@ -222,12 +186,22 @@ class Client implements KApiClientInterface
     /**
      * Resolve the access token.
      */
-    private function resolveAccessToken(): AccessToken
+    private function issueAccessToken(): AccessToken
     {
         $accessToken = $this->tokenRepository->retrieve();
 
         if (empty($accessToken) || $accessToken->isExpired()) {
-            $accessToken = $this->requestNewAccessToken();
+            $response = $this->oauth2
+                ->sendRequest(new RequestAccessToken())
+                ->throw(function ($response, $e) {
+                    if (! $response->isSuccessfull()) {
+                        throw new \Exception('Unable to grant a new access token');
+                    }
+                });
+
+            $accessToken = new AccessToken(array_merge($response->json(), [
+                'issued_at' => DT::now($this->getTimezone()),
+            ]));
 
             $this->tokenRepository->forget();
             $this->tokenRepository->store($accessToken);

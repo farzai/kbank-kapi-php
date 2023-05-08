@@ -15,13 +15,18 @@ class Response implements ResponseInterface
     protected $jsonDecoded;
 
     /**
+     * @var string
+     */
+    protected $content;
+
+    /**
      * Create a new response instance.
      */
     public function __construct(
         protected PsrRequestInterface $request,
         protected PsrResponseInterface $response
     ) {
-        //
+        $this->content = $this->response->getBody()->getContents();
     }
 
     /**
@@ -37,7 +42,7 @@ class Response implements ResponseInterface
      */
     public function body(): string
     {
-        return $this->response->getBody()->getContents();
+        return $this->content;
     }
 
     /**
@@ -64,7 +69,7 @@ class Response implements ResponseInterface
     public function json(?string $key = null): mixed
     {
         if (is_null($this->jsonDecoded)) {
-            $this->jsonDecoded = @json_decode($this->response->getBody()->getContents(), true) ?: false;
+            $this->jsonDecoded = @json_decode($this->content, true) ?: false;
         }
 
         if ($this->jsonDecoded === false) {
@@ -96,8 +101,7 @@ class Response implements ResponseInterface
             return $response;
         };
 
-        return $callback($this, ResponseExceptionFactory::create($this))
-            ?: $this;
+        return $callback($this, ResponseExceptionFactory::create($this)) ?: $this;
     }
 
     /**
