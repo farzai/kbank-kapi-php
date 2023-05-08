@@ -4,7 +4,7 @@ namespace Farzai\KApi\Contracts;
 
 use Farzai\KApi\Entities\AccessToken;
 
-interface OAuth2AccessTokenRepositoryInterface
+interface AccessTokenRepositoryInterface
 {
     /**
      * Get the access token.

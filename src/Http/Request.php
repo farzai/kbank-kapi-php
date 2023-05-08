@@ -6,7 +6,7 @@ use Farzai\KApi\Contracts\RequestInterface;
 use GuzzleHttp\Psr7\Request as GuzzlePsrRequest;
 use Psr\Http\Message\RequestInterface as PsrRequestInterface;
 
-abstract class Request implements RequestInterface
+class Request implements RequestInterface
 {
     const STUB_ACCESS_TOKEN = ':access_token:';
 

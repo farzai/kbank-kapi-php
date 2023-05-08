@@ -2,10 +2,10 @@
 
 namespace Farzai\KApi\Storage;
 
-use Farzai\KApi\Contracts\OAuth2AccessTokenRepositoryInterface;
+use Farzai\KApi\Contracts\AccessTokenRepositoryInterface;
 use Farzai\KApi\Entities\AccessToken;
 
-class SystemTemporaryAccessTokenRepository implements OAuth2AccessTokenRepositoryInterface
+class SystemTemporaryAccessTokenRepository implements AccessTokenRepositoryInterface
 {
     /**
      * The storage path.

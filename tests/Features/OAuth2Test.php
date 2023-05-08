@@ -5,6 +5,7 @@ use Farzai\KApi\ClientBuilder;
 use Farzai\KApi\Http\Response;
 use Farzai\KApi\OAuth2\Endpoint as OAuth2Endpoint;
 use Farzai\KApi\OAuth2\Requests as OAuth2Requests;
+use Psr\Http\Message\RequestInterface as PsrRequestInterface;
 use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
 it('should endpoint valid', function () {
@@ -16,6 +17,8 @@ it('should endpoint valid', function () {
 });
 
 it('should call generate access token success', function () {
+    $psrRequest = \Mockery::mock(PsrRequestInterface::class);
+
     $psrResponse = \Mockery::mock(PsrResponseInterface::class)
         ->shouldReceive('getStatusCode')->once()
         ->andReturn(200)
@@ -37,18 +40,22 @@ it('should call generate access token success', function () {
         ->getMock();
 
     $response = new Response(
-        \Mockery::mock(\Psr\Http\Message\RequestInterface::class),
+        $psrRequest,
         $psrResponse
     );
 
+    $accessTokenRequest = \Mockery::mock(OAuth2Requests\RequestAccessToken::class)
+        ->shouldReceive('toPsrRequest')->once()
+        ->andReturn($psrRequest)
+        ->getMock();
+
     $client = \Mockery::mock(Client::class)
         ->shouldReceive('sendRequest')->once()
+        ->with($psrRequest)
         ->andReturn($response)
         ->getMock();
 
-    $response = $client->oauth2->sendRequest(
-        new OAuth2Requests\RequestAccessToken
-    );
+    $response = $client->oauth2->sendRequest($accessTokenRequest);
 
     expect($response->statusCode())->toBe(200);
     expect($response->json('access_token'))->toBe('a2FzaWtvcm5iYW5rdG9rZW4=');

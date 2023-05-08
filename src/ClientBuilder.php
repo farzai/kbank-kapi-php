@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Farzai\KApi;
 
-use Farzai\KApi\Contracts\OAuth2AccessTokenRepositoryInterface;
+use Farzai\KApi\Contracts\AccessTokenRepositoryInterface;
 use Farzai\KApi\Logger\NullLogger;
 use Farzai\KApi\Storage\SystemTemporaryAccessTokenRepository;
 use GuzzleHttp\Client as GuzzleClient;
@@ -52,7 +52,7 @@ final class ClientBuilder
 
     private ?LoggerInterface $logger;
 
-    private ?OAuth2AccessTokenRepositoryInterface $tokenRepository;
+    private ?AccessTokenRepositoryInterface $tokenRepository;
 
     private $timezone = 'Asia/Bangkok';
 
@@ -203,7 +203,7 @@ final class ClientBuilder
     /**
      * Set the token repository
      */
-    public function setTokenRepository(OAuth2AccessTokenRepositoryInterface $tokenRepository)
+    public function setTokenRepository(AccessTokenRepositoryInterface $tokenRepository)
     {
         $this->tokenRepository = $tokenRepository;
 

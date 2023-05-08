@@ -4,16 +4,18 @@ declare(strict_types=1);
 
 namespace Farzai\KApi;
 
+use Farzai\KApi\Contracts\AccessTokenRepositoryInterface;
 use Farzai\KApi\Contracts\ClientInterface as KApiClientInterface;
-use Farzai\KApi\Contracts\OAuth2AccessTokenRepositoryInterface;
-use Farzai\KApi\Contracts\RequestInterface;
 use Farzai\KApi\Contracts\ResponseInterface;
+use Farzai\KApi\Contracts\WebhookHandlerInterface;
 use Farzai\KApi\Entities\AccessToken;
 use Farzai\KApi\Http\Request;
 use Farzai\KApi\Http\Response;
+use Farzai\KApi\Http\ServerRequest;
 use Farzai\KApi\OAuth2\Requests\RequestAccessToken;
 use Farzai\KApi\Support\DT;
 use Farzai\KApi\Support\Str;
+use GuzzleHttp\Psr7\ServerRequest as GuzzleServerRequest;
 use GuzzleHttp\Psr7\Uri;
 use Psr\Http\Client\ClientInterface as PsrClientInterface;
 use Psr\Http\Message\RequestInterface as PsrRequestInterface;
@@ -44,8 +46,8 @@ class Client implements KApiClientInterface
      * Create a new client instance.
      */
     public function __construct(
-        protected PsrClientInterface $client,
-        protected OAuth2AccessTokenRepositoryInterface $tokenRepository
+        private PsrClientInterface $client,
+        private AccessTokenRepositoryInterface $tokenRepository
     ) {
         //
     }
@@ -70,13 +72,21 @@ class Client implements KApiClientInterface
     /**
      * Send the request.
      */
-    public function sendRequest(RequestInterface $request): ResponseInterface
+    public function sendRequest(PsrRequestInterface $request): ResponseInterface
     {
         $psrResponse = $this->client->sendRequest(
-            $psrRequest = $this->normalizeRequest($request->toPsrRequest())
+            $psrRequest = $this->normalizeRequest($request)
         );
 
         return new Response($psrRequest, $psrResponse);
+    }
+
+    /**
+     * Handle webhook
+     */
+    public function processWebhook(WebhookHandlerInterface $webhook)
+    {
+        return $webhook->handle(new ServerRequest(GuzzleServerRequest::fromGlobals()));
     }
 
     /**
@@ -148,7 +158,7 @@ class Client implements KApiClientInterface
      *
      * @return \Farzai\KApi\OAuth2\Endpoint
      */
-    protected function createOAuth2Endpoint()
+    private function createOAuth2Endpoint()
     {
         return new OAuth2\Endpoint($this);
     }
@@ -158,7 +168,7 @@ class Client implements KApiClientInterface
      *
      * @return \Farzai\KApi\QrPayment\Endpoint
      */
-    protected function createQrPaymentEndpoint()
+    private function createQrPaymentEndpoint()
     {
         return new QrPayment\Endpoint($this);
     }
@@ -166,7 +176,7 @@ class Client implements KApiClientInterface
     /**
      * Grant a new access token.
      */
-    protected function requestNewAccessToken(): AccessToken
+    private function requestNewAccessToken(): AccessToken
     {
         $response = $this->oauth2->sendRequest(
             new RequestAccessToken()

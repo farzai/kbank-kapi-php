@@ -56,6 +56,7 @@ This is a simple example of qr payment.
 ```php
 
 use Farzai\KApi\ClientBuilder;
+use Farzai\KApi\OAuth2\Requests as OAuth2Requests;
 use Farzai\KApi\QrPayment\Requests as QrPaymentRequests;
 
 // Create client instance
@@ -67,25 +68,27 @@ $client = ClientBuilder::make()
 
 // This SDK will automatically generate oauth2 access token for you.
 // You can ignore this step !!
+// $accessToken = $client->oauth2
+//     ->sendRequest(new OAuth2Requests\RequestAccessToken())
+//     ->throw()
+//     ->json('access_token');
+```
 
-// -----
-// Build request
-
-$currentDate = new \DateTime('now');
-$transactionId = 'TS'.time();
+Next, Build qr code payment request
+```php
+$yourTransactionId = 'TS'.time();
 
 $request = new QrPaymentRequests\RequestThaiQRCode();
-
 $request
     // Required
     ->setMerchant(id: '<YOUR_MERCHANT_ID>')
     ->setPartner(
-        partnerTransactionID: $transactionId,
+        partnerTransactionID: $yourTransactionId,
         partnerID: '<YOUR_PARTNER_ID>',
         partnerSecret: '<YOUR_PARTNER_SECRET>',
-        requestDateTime: $currentDate,
+        requestDateTime: new \DateTime('now'),
     )
-    ->setAmount(amount: 100)
+    ->setAmount(100)
     ->setReferences('<YOUR_ORDER_ID>')
     // or ->setReferences('<reference1>', '<reference2>', '<reference3>', '<reference4>')
 
@@ -105,7 +108,21 @@ print_r($response->json());
 
 // Or, you can get response data with specific key
 echo $response->json('partnerTxnUid'); // Output: xxxxxxx
+
 ```
+
+Sometime, you may want to handle webhook from payment notification service
+```php
+use Farzai\KApi\OAuth2;
+
+// This SDK will automatically validate your request.
+$result = $client->processWebhook(new QrPayment\PaymentNotificationCallback);
+
+$result->json() // returns: array
+$result->json('partnerTxnUid') // returns: string
+$result->isSuccessful() // returns: bool
+```
+
 
 ## Testing
 
