@@ -4,6 +4,7 @@ namespace Farzai\KApi\Storage;
 
 use Farzai\KApi\Contracts\AccessTokenRepositoryInterface;
 use Farzai\KApi\Entities\AccessToken;
+use Farzai\KApi\Support\Str;
 
 class SystemTemporaryAccessTokenRepository implements AccessTokenRepositoryInterface
 {
@@ -23,7 +24,7 @@ class SystemTemporaryAccessTokenRepository implements AccessTokenRepositoryInter
             throw new \RuntimeException('The system temporary directory is not readable or writable.');
         }
 
-        $this->path = sys_get_temp_dir().DIRECTORY_SEPARATOR.'kapi-php__'.$this->prefix;
+        $this->path = sys_get_temp_dir().DIRECTORY_SEPARATOR.'kapi-php__'.Str::snake($this->prefix);
     }
 
     /**
