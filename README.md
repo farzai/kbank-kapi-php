@@ -1,80 +1,40 @@
+---
+description: (Work in progress)
+---
+
 # KBank API - PHP SDK (Unofficial)
-### (Work in progress)
 
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/farzai/kapi-sdk.svg?style=flat-square)](https://packagist.org/packages/farzai/kapi-sdk)
-[![Tests](https://img.shields.io/github/actions/workflow/status/farzai/kbank-kapi-php/run-tests.yml?branch=main&label=tests&style=flat-square)](https://github.com/farzai/kapi-sdk/actions/workflows/run-tests.yml)
-[![Total Downloads](https://img.shields.io/packagist/dt/farzai/kapi-sdk.svg?style=flat-square)](https://packagist.org/packages/farzai/kapi-sdk)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/farzai/kapi-sdk.svg?style=flat-square)](https://packagist.org/packages/farzai/kapi-sdk) [![Tests](https://img.shields.io/github/actions/workflow/status/farzai/kbank-kapi-php/run-tests.yml?branch=main\&label=tests\&style=flat-square)](https://github.com/farzai/kapi-sdk/actions/workflows/run-tests.yml) [![Total Downloads](https://img.shields.io/packagist/dt/farzai/kapi-sdk.svg?style=flat-square)](https://packagist.org/packages/farzai/kapi-sdk)
 
-Welcome to the KBank API SDK for PHP! This SDK simplifies the process of integrating with KBank APIs by providing a set of pre-built functions that handle authentication, requests, and responses. With this SDK, developers can easily build applications that leverage KBank services, such as payment processing, account management, and more. The KBank API SDK for PHP is designed to be easy to use, with clear documentation and examples to get you started quickly.
+ไปยังโค้ดต้นฉบับได้ที่ [https://github.com/farzai/kbank-kapi-php](https://github.com/farzai/kbank-kapi-php).
 
+ยินดีต้อนรับสู่ KBank API SDK for PHP! ส่วนช่วยในการเชื่อมต่อกับ KBank APIs โดยมีฟังก์ชันที่สร้างไว้ล่วงหน้าเพื่อจัดการการรับรองความถูกต้อง การร้องขอ และการตอบกลับ ด้วย SDK นี้นักพัฒนาสามารถสร้างแอปพลิเคชันที่ใช้บริการ KBank ได้ง่ายขึ้น เช่น การประมวลผลการชำระเงิน การจัดการบัญชี และอื่น ๆ KBank API SDK for PHP ถูกออกแบบให้ใช้งานง่าย มีเอกสารและตัวอย่างที่ชัดเจนเพื่อให้คุณเริ่มต้นได้ง่ายขึ้น
 
-## Requirements
-```
-{
-    "php": "^8.0",
-    "ext-json": "*",
-    "ext-curl": "*"
-}
-```
+## การใช้งานคร่าวๆ
 
-## Support products
-
-| Done | Products                   | 
-| --- |-----------------------------------|
-|  -  | [QR Payment](https://apiportal.kasikornbank.com/product/public/All/QR%20Payment/Introduction/GETTING%20STARTED) | 
-|  -  | [Bill Payment](https://apiportal.kasikornbank.com/product/public/All/Bill%20Payment/Introduction/GETTING%20STARTED) | 
-|  -  | [Slip Verification](https://apiportal.kasikornbank.com/product/public/All/Slip%20Verification/Introduction/Getting%20Started) | 
-|  -  | [Inward Remittance](https://apiportal.kasikornbank.com/product/public/All/Inward%20Remittance/Introduction/GETTING%20STARTED) | 
-|  -  | [KGP Merchant Payment Platform](https://apiportal.kasikornbank.com/product/public/All/KGP%20Merchant%20Payment%20Platform/Introduction/Getting%20Started) | 
-|  -  | [Corporate Fund Transfer](https://apiportal.kasikornbank.com/product/public/All/Corporate%20%20Fund%20Transfer/Introduction/Getting%20Started) |
-
-
-
-## Please note
-This project is still under development.
-- [x] OAuth2 Authentication
-- [x] Setup environment and test suite
-- [ ] Documentation
-- [ ] Implement products
-- [ ] Webhook callback capture
-- [ ] Code coverage must >= 80%
-- [ ] Add support two-way SSL authentication
-- [ ] Release v1.0.0
-
-
-## Installation
-
-You can install the package via composer:
-
-```bash
-composer require farzai/kapi-sdk
-```
-
-## Usage
-
-This is a simple example of qr payment.
 ```php
-
 use Farzai\KApi\ClientBuilder;
 use Farzai\KApi\OAuth2\Requests as OAuth2Requests;
 use Farzai\KApi\QrPayment\Requests as QrPaymentRequests;
 
-// Create client instance
+// สร้าง instance 
 $client = ClientBuilder::make()
     ->setConsumer("<YOUR_CONSUMER_ID>", "<YOUR_CONSUMER_SECRET>")
     ->asSandbox()
     ->build();
+```
 
+โดยปกติแล้ว SDK จะสร้าง oauth access token ให้คุณโดยอัตโนมัติ, คุณสามารถข้ามขั้นตอนนี้ได้เลย++++
 
-// This SDK will automatically generate oauth2 access token for you.
-// You can ignore this step !!
+```php
 // $accessToken = $client->oauth2
 //     ->sendRequest(new OAuth2Requests\RequestAccessToken())
 //     ->throw()
 //     ->json('access_token');
 ```
 
-Next, Build qr code payment request
+ต่อไป,​ ทำการสร้าง request เพื่อเตรียมคำขอ QR Code
+
 ```php
 $yourTransactionId = 'TS'.time();
 
@@ -99,8 +59,11 @@ $request
         'แก้วเบียร์ 40บ.',
         'เหล้าขาว 60บ.',
     ]);
+```
 
-// Send request
+ทำการส่งคำขอไปยัง API ของ KBank, เราจะได้ `$response` มาเช่นตัวอย่างนี้
+
+```php
 $response = $client->qrPayment->sendRequest($request);
 
 // Print response data
@@ -108,45 +71,21 @@ print_r($response->json());
 
 // Or, you can get response data with specific key
 echo $response->json('partnerTxnUid'); // Output: xxxxxxx
-
 ```
 
-Sometime, you may want to handle webhook from payment notification service
+ส่วนของ Webhook หากคุณต้องการจัดการ webhook จากบริการการแจ้งเตือนการชำระเงิน
+
+คุณสามารถทำได้ดังนี้
+
 ```php
 use Farzai\KApi\QrPayment;
 
-// This SDK will automatically validate your request.
+// ตรงส่วนนี้, SDK จะเป็นตัวตรวจสอบความถูกต้องของข้อมูลที่ส่งมาให้เอง
 $result = $client->processWebhook(new QrPayment\PaymentNotificationCallback);
 
+// คุณสามารถเข้าถึงข้อมูลที่ส่งมาได้ดังนี้
+$result->isSuccessful() // returns: bool
 $result->json() // returns: array
 $result->json('partnerTxnUid') // returns: string
-$result->isSuccessful() // returns: bool
 ```
 
-
-## Testing
-
-```bash
-composer test
-```
-
-## Changelog
-
-Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
-
-## Contributing
-
-Please see [CONTRIBUTING](https://github.com/spatie/.github/blob/main/CONTRIBUTING.md) for details.
-
-## Security Vulnerabilities
-
-Please review [our security policy](../../security/policy) on how to report security vulnerabilities.
-
-## Credits
-
-- [parsilver](https://github.com/parsilver)
-- [All Contributors](../../contributors)
-
-## License
-
-The MIT License (MIT). Please see [License File](LICENSE.md) for more information.
