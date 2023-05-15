@@ -8,6 +8,10 @@
 Welcome to the KBank API SDK for PHP! This SDK simplifies the process of integrating with KBank APIs by providing a set of pre-built functions that handle authentication, requests, and responses. With this SDK, developers can easily build applications that leverage KBank services, such as payment processing, account management, and more. The KBank API SDK for PHP is designed to be easy to use, with clear documentation and examples to get you started quickly.
 
 
+### Documentation
+See full documentation at [https://farzai.gitbook.io/kbank-kapi-php](https://farzai.gitbook.io/kbank-kapi-php)
+
+
 ## Requirements
 ```
 {
@@ -16,6 +20,8 @@ Welcome to the KBank API SDK for PHP! This SDK simplifies the process of integra
     "ext-curl": "*"
 }
 ```
+
+
 
 ## Support products
 
