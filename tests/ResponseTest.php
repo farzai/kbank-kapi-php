@@ -8,7 +8,7 @@ use Psr\Http\Message\StreamInterface;
 it('should return the psr response', function () {
     $response = new Response(
         \Mockery::mock(PsrRequestInterface::class),
-        \Mockery::mock(PsrResponseInterface::class)
+        \Mockery::mock(PsrResponseInterface::class),
     );
 
     expect($response->getPsrResponse())->toBeInstanceOf(PsrResponseInterface::class);

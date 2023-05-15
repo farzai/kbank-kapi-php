@@ -15,7 +15,7 @@ class Response implements ResponseInterface
     protected $jsonDecoded;
 
     /**
-     * @var string
+     * @var string|null
      */
     protected $content;
 
@@ -26,7 +26,7 @@ class Response implements ResponseInterface
         protected PsrRequestInterface $request,
         protected PsrResponseInterface $response
     ) {
-        $this->content = $this->response->getBody()->getContents();
+        //
     }
 
     /**
@@ -42,6 +42,10 @@ class Response implements ResponseInterface
      */
     public function body(): string
     {
+        if (is_null($this->content)) {
+            $this->content = $this->response->getBody()->getContents();
+        }
+
         return $this->content;
     }
 
@@ -69,7 +73,7 @@ class Response implements ResponseInterface
     public function json(?string $key = null): mixed
     {
         if (is_null($this->jsonDecoded)) {
-            $this->jsonDecoded = @json_decode($this->content, true) ?: false;
+            $this->jsonDecoded = @json_decode($this->body(), true) ?: false;
         }
 
         if ($this->jsonDecoded === false) {
